@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "rootDir": "./backend",
+    "strict": true,
+    "skipLibcheck": true
+  }
+}
