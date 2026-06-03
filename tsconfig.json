@@ -6,6 +6,6 @@
     "esModuleInterop": true,
     "rootDir": "./backend",
     "strict": true,
-    "skipLibcheck": true
+    "skipLibCheck": true
   }
 }
