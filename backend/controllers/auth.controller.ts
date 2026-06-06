@@ -117,7 +117,54 @@ export async function signup(req: Request, res: Response): Promise<void> {
 }
 
 export async function login(req:Request, res: Response) {
-    res.json('you hit the login endpoint')
+    try {
+        let { username, password } = req.body
+        if (
+            typeof username !== 'string' ||
+            typeof password !== 'string'
+        ) {
+            res.status(400).json({ error: 'Invalid input types' })
+            return
+        }
+        username = username.trim().replace(/\s/g, '')
+
+        if (!username || !password) {
+            return res.status(400).json({error: 'Please enter username and password!'})
+        }
+        const user = await User.findOne({ username })
+        if (!user) {
+            return res.status(400).json({error: 'Invalid username or password!'})
+        }
+        const isPassword = await bcryptjs.compare(password, user.password)
+        if (!isPassword) {
+            return res.status(400).json({error: 'Invalid username or password!'})
+        }
+
+        try {
+            genTokenAndSetCookie(user._id, res)
+        } catch (tokenError) {
+            console.error('Token generation failed:', tokenError)
+            res.status(500).json({ error: 'Authentication failed. Please try again.' })
+            return
+        }
+
+        res.status(200).json({
+            _id:       user._id,
+            name:      user.name,
+            username:  user.username,
+            email:     user.email,
+            profileImg: user.profileImg,
+            coverImg:   user.coverImg,
+            bio:        user.bio,
+            link:       user.link,
+            likes:      user.likes,
+            followers:  user.followers,
+            following:  user.following,
+        })
+    } catch (error) {
+        console.error('Login error:', error)
+        res.status(500).json({ error: 'Internal server error' })
+    }
 }
 
 export async function logout(req:Request, res: Response) {
