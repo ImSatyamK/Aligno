@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs'
 
 import User from '../models/user.model'
 import { genTokenAndSetCookie } from '../lib/utils/generateToken'
+import { error } from 'node:console'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
@@ -168,5 +169,11 @@ export async function login(req:Request, res: Response) {
 }
 
 export async function logout(req:Request, res: Response) {
-    res.json('you hit the logout endpoint')
+    try{
+        res.cookie('jwt', '', {maxAge:0})
+        res.status(200).json('Logged out successfully')
+    } catch (error) {
+        console.log("Error logging out user", error)
+        res.status(500).json({error: "Internal server error"})
+    }
 }
