@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser"
 
 import connectDB from './db/connect.db'
 import { authRouter } from './routes/auth.route'
+import { userRouter } from './routes/user.route'
 
 dotenv.config()
 const app = express()
@@ -14,6 +15,7 @@ app.use(cookieParser())
 
 
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 const PORT = process.env.PORT || 5000
 
