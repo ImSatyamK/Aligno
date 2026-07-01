@@ -37,19 +37,19 @@ export async function followUnfollowUser(req: Request, res: Response) {
 
         const isFollowing = currentUser.following.includes(userToModify._id)
         if (isFollowing) {
-            await User.findByIdAndUpdate(currentUser._id, {$pull: {following: userToModify._id}})
-            await User.findByIdAndUpdate(userToModify._id, {$pull: {followers: currentUser._id}})
+            await User.findByIdAndUpdate(currentUser._id, { $pull: { following: userToModify._id } })
+            await User.findByIdAndUpdate(userToModify._id, { $pull: { followers: currentUser._id } })
             res.status(200).json({ message: "User unfollowed successfully" })
         } else {
-            await User.findByIdAndUpdate(currentUser._id, {$push: {following: userToModify._id}})
-            await User.findByIdAndUpdate(userToModify._id, {$push: {followers: currentUser._id}})
+            await User.findByIdAndUpdate(currentUser._id, { $push: { following: userToModify._id } })
+            await User.findByIdAndUpdate(userToModify._id, { $push: { followers: currentUser._id } })
             const newNotification = new Notification({
                 from: currentUser._id,
                 to: userToModify._id,
                 message: `${currentUser.username} started following you`
             })
             await newNotification.save()
-            
+
             res.status(200).json({ message: "User followed successfully" })
         }
     } catch (error) {
@@ -57,4 +57,25 @@ export async function followUnfollowUser(req: Request, res: Response) {
         return res.status(500).json({ error: 'Internal server error' })
     }
 
+}
+
+export async function getSuggestedUsers(req: Request, res: Response) {
+    try {
+        if (!req.user) {
+            return res.status(400).json('Login first')
+        }
+        const currentUser = await User.findById(req.user._id).select('-password')
+        if (!currentUser) {
+            return res.status(404).json('User not found')
+        }
+        const suggestedUsers = await User.aggregate([
+            { $match: { _id: { $nin: [...currentUser.following, currentUser._id] } } },
+            { $sample: { size: 5 } },
+            { $project: { password: 0 } }
+        ])
+        res.status(200).json(suggestedUsers)
+    } catch (error) {
+        console.log({ error: error })
+        return res.status(500).json({ error: 'Internal server error' })
+    }
 }
