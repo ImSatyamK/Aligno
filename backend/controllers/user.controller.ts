@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 import User from '../models/user.model'
+import Notification from '../models/notification.model'
 
 
 export async function getUserProfile(req: Request, res: Response) {
@@ -42,6 +43,13 @@ export async function followUnfollowUser(req: Request, res: Response) {
         } else {
             await User.findByIdAndUpdate(currentUser._id, {$push: {following: userToModify._id}})
             await User.findByIdAndUpdate(userToModify._id, {$push: {followers: currentUser._id}})
+            const newNotification = new Notification({
+                from: currentUser._id,
+                to: userToModify._id,
+                message: `${currentUser.username} started following you`
+            })
+            await newNotification.save()
+            
             res.status(200).json({ message: "User followed successfully" })
         }
     } catch (error) {
