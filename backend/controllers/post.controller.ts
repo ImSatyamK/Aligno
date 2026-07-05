@@ -113,3 +113,35 @@ export async function likeUnlikePost(req: Request, res: Response){
         res.status(500).json({error: 'Internal server error'})
     }
 }
+
+export async function commentOnPost(req: Request, res: Response){
+    try {
+        const { postId } = req.params
+        const { text } = req.body
+
+        const post = await Post.findById(postId)
+        if (!post) {
+            return res.status(404).json({error: 'Post not found'})
+        }
+
+        const user = await User.findById(req.user!._id)
+        if (!user) {
+            return res.status(404).json({error: 'User not found'})
+        }
+
+        await Post.updateOne({_id: postId}, {$push: {comments: {text: text, user: req.user!._id}}})
+
+        const newNotification = new Notification({
+            from: req.user!._id,
+            to: post.user,
+            message: `${user.username} commented on your post`,
+        })
+
+        await newNotification.save()
+        res.status(200).json({message: 'Comment added successfully'})
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: 'Internal server error'})
+    }
+}
