@@ -3,6 +3,7 @@ import { v2 as claudinary } from 'cloudinary'
 
 import User from '../models/user.model'
 import Post from '../models/post.model'
+import Notification from '../models/notification.model'
 
 
 export async function createPost(req: Request, res: Response) {
@@ -73,4 +74,42 @@ export async function deletePost(req: Request, res: Response){
 function getCloudinaryPublicId(url: string, folder: string): string {
     const filename = url.split("/").pop()!.split(".")[0]
     return `${folder}/${filename}`
+}
+
+export async function likeUnlikePost(req: Request, res: Response){
+    try {
+        const { postId } = req.params
+        const post = await Post.findById(postId)
+        if (!post) {
+            return res.status(404).json({error: 'Post not found'})
+        }
+
+        const user = await User.findById(req.user!._id)
+        if (!user) {
+            return res.status(404).json({error: 'User not found'})
+        }
+
+        const isLiked = post.likes.includes(req.user!._id)
+        if (isLiked) {
+            await Post.updateOne({_id: postId}, {$pull: {likes: req.user!._id}})
+            await User.updateOne({_id: req.user!._id}, {$pull: {likes: postId}})
+            res.status(200).json({message: 'Post unliked successfully'})
+            
+        } else {
+            await Post.updateOne({_id: postId}, {$push: {likes: req.user!._id}})
+            await User.updateOne({_id: req.user!._id}, {$push: {likes: postId}})
+
+            const newNotification = new Notification({
+                from: req.user!._id,
+                to: post.user,
+                message: `${user.username} liked your post`,
+            })
+            await newNotification.save()
+
+            res.status(200).json({message: 'Post liked successfully'})
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: 'Internal server error'})
+    }
 }
