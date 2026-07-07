@@ -7,6 +7,7 @@ import connectDB from './db/connect.db'
 import { authRouter } from './routes/auth.route'
 import { userRouter } from './routes/user.route'
 import { postRouter } from './routes/post.route'
+import { notificationRouter } from './routes/notification.route'
 
 dotenv.config()
 const app = express()
@@ -23,6 +24,7 @@ cloudinary.config({
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
+app.use('/api/notification', notificationRouter)
 
 const PORT = process.env.PORT || 5000
 
