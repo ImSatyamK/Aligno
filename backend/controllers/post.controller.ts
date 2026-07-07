@@ -189,6 +189,10 @@ export async function getLikedPosts(req: Request, res: Response){
             select: 'username profileImg'
         })
 
+        if (!likedPosts) {
+            return res.status(200).json([])
+        }
+
         res.status(200).json({ posts: likedPosts })
     } catch (error) {
         console.log(error)
@@ -215,7 +219,7 @@ export async function getUserPosts(req: Request, res: Response){
         if (!userPosts) {
             return res.status(200).json([])
         }
-        
+
         res.status(200).json({ posts: userPosts })
     } catch (error) {
         console.log(error)
