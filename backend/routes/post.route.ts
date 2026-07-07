@@ -2,14 +2,15 @@ import express from "express";
 
 import { protectRoute } from "../middleware/protectRoute";
 import {
-     
+
     createPost,
     deletePost,
     likeUnlikePost,
     commentOnPost,
     getAllPosts,
     getLikedPosts,
-    getUserPosts
+    getUserPosts,
+    getFollowingPosts
 
 }
 from "../controllers/post.controller"
@@ -24,3 +25,4 @@ postRouter.post('/comment/:postId', protectRoute, commentOnPost)
 postRouter.get('/all', protectRoute, getAllPosts)
 postRouter.get('/likedPosts/:userId', protectRoute, getLikedPosts)
 postRouter.get('/userPosts/:userId', protectRoute, getUserPosts)
+postRouter.get('/following', protectRoute, getFollowingPosts)
