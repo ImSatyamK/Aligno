@@ -3,7 +3,6 @@ import bcryptjs from 'bcryptjs'
 
 import User from '../models/user.model'
 import { genTokenAndSetCookie } from '../lib/utils/generateToken'
-import { error } from 'node:console'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/

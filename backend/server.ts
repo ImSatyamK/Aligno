@@ -8,6 +8,7 @@ import { authRouter } from './routes/auth.route'
 import { userRouter } from './routes/user.route'
 import { postRouter } from './routes/post.route'
 import { notificationRouter } from './routes/notification.route'
+import { testRouter } from './routes/test.route'
 
 dotenv.config()
 const app = express()
@@ -25,6 +26,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
 app.use('/api/notification', notificationRouter)
+app.use('/api/test', testRouter)
 
 const PORT = process.env.PORT || 5000
 
