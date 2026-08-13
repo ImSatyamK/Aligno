@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cookieParser from "cookie-parser"
 import {v2 as cloudinary} from 'cloudinary'
+import cors from 'cors'
 
 import connectDB from './db/connect.db'
 import { authRouter } from './routes/auth.route'
@@ -12,6 +13,13 @@ import { testRouter } from './routes/test.route'
 
 dotenv.config()
 const app = express()
+
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+        ? process.env.FRONTEND_URL 
+        : 'http://localhost:3000',
+    credentials: true,
+}))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

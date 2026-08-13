@@ -89,8 +89,9 @@ export async function signup(req: Request, res: Response): Promise<void> {
 
         await newUser.save()
 
+        let token;
         try {
-            genTokenAndSetCookie(newUser._id, res)
+            token = genTokenAndSetCookie(newUser._id, res)
         } catch (tokenError) {
             console.error('Token generation failed after signup:', tokenError)
             res.status(500).json({ error: 'Account created but authentication failed. Please log in.' })
@@ -109,6 +110,7 @@ export async function signup(req: Request, res: Response): Promise<void> {
             likes:      newUser.likes,
             followers:  newUser.followers,
             following:  newUser.following,
+            accessToken: token
         })
     } catch (error) {
         console.error('Signup error:', error)
@@ -140,8 +142,9 @@ export async function login(req:Request, res: Response) {
             return res.status(400).json({error: 'Invalid username or password!'})
         }
 
+        let token;
         try {
-            genTokenAndSetCookie(user._id, res)
+            token = genTokenAndSetCookie(user._id, res)
         } catch (tokenError) {
             console.error('Token generation failed:', tokenError)
             res.status(500).json({ error: 'Authentication failed. Please try again.' })
@@ -160,6 +163,7 @@ export async function login(req:Request, res: Response) {
             likes:      user.likes,
             followers:  user.followers,
             following:  user.following,
+            accessToken: token
         })
     } catch (error) {
         console.error('Login error:', error)
