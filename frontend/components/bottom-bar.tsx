@@ -8,7 +8,7 @@ import { useHideOnScroll } from "@/hooks/scroll";
 
 const NAV_ITEMS = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/tests", label: "Tests", icon: Pencil },
+    { href: "/test", label: "Tests", icon: Pencil },
     { href: "/create", label: "Create", icon: Plus },
     { href: "/notifications", label: "Alerts", icon: Bell },
 ];
@@ -46,8 +46,7 @@ export function BottomTabBar({ user }: { user: TabBarUser | null }) {
                 );
             })}
 
-            <Link
-                href="/profile"
+            <Link href="/profile"
                 className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] font-medium ${
                     isProfileActive ? "text-[#C08A2E]" : "text-foreground/60"
                 }`}
