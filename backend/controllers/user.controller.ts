@@ -5,6 +5,19 @@ import { v2 as cloudinary } from 'cloudinary'
 import User from '../models/user.model'
 import Notification from '../models/notification.model'
 
+export async function getUserProfileById(req: Request, res: Response) {
+    const { id } = req.params
+    try {
+        const user = await User.findById(id).select('-password')
+        if (!user) {
+            return res.status(404).json({ error: `No user found of id: ${id}` })
+        }
+        res.status(200).json(user)
+    } catch (error) {
+        console.log({ error: error })
+        return res.status(500).json({ error: 'Internal server error' })
+    }
+}
 
 export async function getUserProfile(req: Request, res: Response) {
     const { username } = req.params

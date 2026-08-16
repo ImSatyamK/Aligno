@@ -34,7 +34,7 @@ export function LoginComponent() {
 
         if (result.success) {
             toast.add({ title: "Logged in successfully", type: "success" });
-            router.push("/home");
+            router.push("/");
         } else {
             toast.add({
                 title: "Error",

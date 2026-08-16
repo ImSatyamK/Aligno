@@ -35,9 +35,6 @@ const postSchema = new Schema<IPost>({
         }
     ],
     comments: [{
-        _id: {
-            type: mongoose.Types.ObjectId
-        },
         text: {
             type: String,
             required: true
