@@ -2,9 +2,13 @@ import { getCurrentUser } from "@/api/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { Settings, Link as LinkIcon } from "lucide-react";
+import { getUserPosts } from "@/api/post";
+import { PostCard } from "@/components/post-card";
 
 export default async function ProfilePage() {
     const result = await getCurrentUser();
+    const postsResult = await getUserPosts(result.data?._id ?? "");
+    const posts = postsResult.success ? postsResult.data.posts : [];
 
     if (!result.success) {
         return (
@@ -113,10 +117,15 @@ export default async function ProfilePage() {
                         Posts
                     </h2>
 
-                    <p className="mt-3 text-sm text-muted-foreground">
-                        Your posts will show here once there's an endpoint to
-                        fetch posts by user.
-                    </p>
+                    {posts.map((post: any) => (
+                        <PostCard
+                            key={post._id}
+                            post={post}
+                            currentUserId={user?._id ?? null}
+                            currentUsername={user?.username}
+                            currentUserImg={user?.profileImg}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
