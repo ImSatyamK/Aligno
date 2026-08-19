@@ -1,4 +1,3 @@
-// components/theme-toggle.tsx
 'use client';
 
 import { useTheme } from "next-themes";
@@ -12,7 +11,6 @@ export function ThemeToggle() {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    // reserve the same space to avoid layout shift once it mounts
     return <div className="h-9 w-9" />;
   }
 

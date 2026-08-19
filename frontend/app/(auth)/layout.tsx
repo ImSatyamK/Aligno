@@ -12,17 +12,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <Image
                     src="/logo_light.png"
                     alt="Aligno"
-                    width={280}
-                    height={280}
-                    style={{ width: "auto", height: "auto" }}
+                    width={100}
+                    height={100}
                     className="block dark:hidden w-14 h-14 md:w-64 md:h-64 object-contain"
                 />
                 <Image
                     src="/logo_dark.png"
                     alt="Aligno"
-                    width={280}
-                    height={280}
-                    style={{ width: "auto", height: "auto" }}
+                    width={100}
+                    height={100}
                     className="hidden dark:block w-14 h-14 md:w-64 md:h-64 object-contain"
                 />
             </div>

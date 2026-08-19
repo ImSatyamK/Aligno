@@ -82,7 +82,7 @@ export function PostCard({
     };
 
     return (
-        <article className="border-b border-foreground/10 px-4 py-4">
+        <article className="border-b border-foreground/10 px-4 py-4 overflow-hidden">
             <div className="flex gap-3">
                 <Image
                     src={post.user?.profileImg || "/default_profile.webp"}
@@ -120,9 +120,8 @@ export function PostCard({
                     <div className="mt-3 flex items-center gap-6 text-muted-foreground">
                         <button
                             onClick={handleLike}
-                            className={`flex items-center gap-1.5 text-sm transition-colors cursor-pointer ${
-                                liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
-                            }`}
+                            className={`flex items-center gap-1.5 text-sm transition-colors cursor-pointer ${liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
+                                }`}
                         >
                             <Heart className={`h-4 w-4 ${liked ? "fill-red-500" : "fill-none"}`} />
                             {likesCount}
@@ -140,7 +139,7 @@ export function PostCard({
                     {showComments && (
                         <div className="mt-3 border-t border-foreground/10 pt-3 space-y-3">
                             {comments.map((comment) => (
-                                <div key={comment._id} className="flex gap-2">
+                                <div key={comment._id} className="flex gap-2 min-w-0">
                                     <Image
                                         src={comment.user?.profileImg || "/default_profile.webp"}
                                         alt={comment.user?.username || "User"}
@@ -148,7 +147,7 @@ export function PostCard({
                                         height={28}
                                         className="h-7 w-7 shrink-0 rounded-full object-cover"
                                     />
-                                    <div className="text-sm">
+                                    <div className="text-sm min-w-0 [overflow-wrap:anywhere] break-all">
                                         <span className="font-semibold text-foreground">
                                             @{comment.user?.username || "unknown"}
                                         </span>{" "}
