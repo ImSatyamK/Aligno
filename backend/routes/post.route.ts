@@ -1,4 +1,5 @@
 import express from "express";
+import multer from 'multer'
 
 import { protectRoute } from "../middleware/protectRoute";
 import {
@@ -17,7 +18,9 @@ from "../controllers/post.controller"
 
 export const postRouter = express.Router()
 
-postRouter.post('/create', protectRoute, createPost)
+const upload = multer({ storage: multer.memoryStorage() })
+
+postRouter.post('/create', protectRoute, upload.single('img'), createPost)
 postRouter.delete('/:id', protectRoute, deletePost)
 postRouter.post('/like/:postId', protectRoute, likeUnlikePost)
 postRouter.post('/comment/:postId', protectRoute, commentOnPost)

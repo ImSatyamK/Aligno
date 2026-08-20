@@ -9,33 +9,30 @@ import Notification from '../models/notification.model'
 export async function createPost(req: Request, res: Response) {
     try {
         const { text } = req.body
-        let { img } = req.body
+        const file = req.file
 
-        if (!req.user){
-            return res.status(404).json({error: 'User not found'})
-        }
+        if (!req.user) return res.status(404).json({error: 'User not found'})
         const user = await User.findById(req.user._id)
-        if (!user){
-            return res.status(404).json({error: 'User not found'})
-        }
+        if (!user) return res.status(404).json({error: 'User not found'})
 
-        if (!text && !img){
+        if (!text && !file) {
             return res.status(400).json('Post must have text or image')
         }
 
-        if(img){
-            const uploaded = await claudinary.uploader.upload(img, {folder: 'post_images'})
+        let img: string | undefined
+        if (file) {
+            const uploaded = await new Promise<any>((resolve, reject) => {
+                claudinary.uploader.upload_stream(
+                    { folder: 'post_images' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                ).end(file.buffer)
+            })
             img = uploaded.secure_url
         }
 
-        const newPost = new Post({
-            user: req.user._id,
-            text,
-            img
-        })
+        const newPost = new Post({ user: req.user._id, text, img })
         await newPost.save()
         res.status(200).json({message: 'Post created successfully'})
-        
     } catch (error) {
         console.log(error)
         res.status(500).json({error: 'Internal server error'})
