@@ -1,8 +1,10 @@
-export default function CreatePage() {
+import CreatePostForm from '@/components/createPost.component'
+
+export default function CreatePostPage() {
     return (
-        <div className="flex flex-col items-center justify-center gap-4 py-20">
-            <h1 className="text-2xl font-bold">Create Page</h1>
-            <p className="text-lg text-gray-600">Coming Soon</p>
+        <div className="max-w-xl mx-auto p-4">
+            <h1 className="text-xl font-semibold mb-4">Create Post</h1>
+            <CreatePostForm />
         </div>
-    );
+    )
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { v2 as claudinary } from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary'
 
 import User from '../models/user.model'
 import Post from '../models/post.model'
@@ -16,13 +16,13 @@ export async function createPost(req: Request, res: Response) {
         if (!user) return res.status(404).json({error: 'User not found'})
 
         if (!text && !file) {
-            return res.status(400).json('Post must have text or image')
+            return res.status(400).json({ error: 'Post must have text or image' })
         }
 
         let img: string | undefined
         if (file) {
             const uploaded = await new Promise<any>((resolve, reject) => {
-                claudinary.uploader.upload_stream(
+                cloudinary.uploader.upload_stream(
                     { folder: 'post_images' },
                     (err, result) => err ? reject(err) : resolve(result)
                 ).end(file.buffer)
@@ -54,7 +54,7 @@ export async function deletePost(req: Request, res: Response){
 
         if (post.img){
             const publicId = getCloudinaryPublicId(post.img, 'post_images')
-            await claudinary.uploader.destroy(publicId)
+            await cloudinary.uploader.destroy(publicId)
         }
 
         const { id } = req.params
