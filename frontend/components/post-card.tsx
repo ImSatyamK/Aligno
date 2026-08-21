@@ -1,9 +1,11 @@
 'use client'
 
 import Image from "next/image";
-import { Heart, MessageCircle } from "lucide-react";
-import { likeUnlikePost, commentOnPost } from "@/api/post";
-import { useState } from "react";
+import { Heart, MessageCircle, MoreHorizontal, Flag, Pencil, Trash2 } from "lucide-react";
+import { likeUnlikePost, commentOnPost, deletePost } from "@/api/post";
+import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { toast } from "./ui/toast";
 
 interface PostUser {
@@ -45,6 +47,70 @@ function timeAgo(dateString: string) {
     });
 }
 
+function PostMenu({
+    isOwnPost,
+    onReport,
+    onEdit,
+    onDelete,
+    deleting,
+    onClose,
+    anchorRect,
+}: {
+    isOwnPost: boolean;
+    onReport: () => void;
+    onEdit: () => void;
+    onDelete: () => void;
+    deleting: boolean;
+    onClose: () => void;
+    anchorRect: DOMRect;
+}) {
+    const menuStyle: React.CSSProperties = {
+        position: "fixed",
+        top: anchorRect.bottom + 4,
+        right: window.innerWidth - anchorRect.right,
+    };
+
+    return createPortal(
+        <>
+            <div className="fixed inset-0 z-40" onClick={onClose} />
+            <div
+                style={menuStyle}
+                className="z-50 w-44 rounded-xl border border-foreground/10 bg-background shadow-lg overflow-hidden"
+            >
+                <button
+                    onClick={onReport}
+                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-foreground/5 transition-colors"
+                >
+                    <Flag className="h-4 w-4 text-muted-foreground" />
+                    Report
+                </button>
+
+                {isOwnPost && (
+                    <>
+                        <button
+                            onClick={onEdit}
+                            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-foreground/5 transition-colors"
+                        >
+                            <Pencil className="h-4 w-4 text-muted-foreground" />
+                            Edit
+                        </button>
+
+                        <button
+                            onClick={onDelete}
+                            disabled={deleting}
+                            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/5 disabled:opacity-50 transition-colors"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            {deleting ? "Deleting..." : "Delete"}
+                        </button>
+                    </>
+                )}
+            </div>
+        </>,
+        document.body
+    );
+}
+
 export function PostCard({
     post,
     currentUserId,
@@ -56,6 +122,9 @@ export function PostCard({
     currentUsername?: string;
     currentUserImg?: string;
 }) {
+    const router = useRouter();
+    const isOwnPost = currentUserId != null && post.user?._id === currentUserId;
+
     const [liked, setLiked] = useState(currentUserId ? post.likes.includes(currentUserId) : false);
     const [likesCount, setLikesCount] = useState(post.likes.length);
 
@@ -63,6 +132,18 @@ export function PostCard({
     const [comments, setComments] = useState(post.comments);
     const [commentText, setCommentText] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    const [showMenu, setShowMenu] = useState(false);
+    const [menuRect, setMenuRect] = useState<DOMRect | null>(null);
+    const [deleting, setDeleting] = useState(false);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+    const toggleMenu = () => {
+        if (!showMenu && menuButtonRef.current) {
+            setMenuRect(menuButtonRef.current.getBoundingClientRect());
+        }
+        setShowMenu((v) => !v);
+    };
 
     const handleLike = async () => {
         const result = await likeUnlikePost(post._id);
@@ -98,6 +179,34 @@ export function PostCard({
         setSubmitting(false);
     };
 
+    const handleDelete = async () => {
+        setDeleting(true);
+        const result = await deletePost(post._id);
+
+        if (result.success) {
+            toast.add({ title: "Post deleted", type: "success" });
+            setShowMenu(false);
+            router.refresh();
+        } else {
+            toast.add({
+                title: "Error",
+                description: typeof result.error === "string" ? result.error : "Failed to delete post",
+                type: "error",
+            });
+        }
+        setDeleting(false);
+    };
+
+    const handleEdit = () => {
+        toast.add({ title: "Coming soon", description: "Editing posts isn't available yet.", type: "info" });
+        setShowMenu(false);
+    };
+
+    const handleReport = () => {
+        toast.add({ title: "Coming soon", description: "Reporting isn't available yet.", type: "info" });
+        setShowMenu(false);
+    };
+
     return (
         <article className="border-b border-foreground/10 px-4 py-4 overflow-hidden">
             <div className="flex gap-3">
@@ -110,12 +219,37 @@ export function PostCard({
                 />
 
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 text-sm">
-                        <span className="font-semibold text-foreground truncate">
-                            @{post.user?.username || "unknown"}
-                        </span>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground">{timeAgo(post.createdAt)}</span>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-sm min-w-0">
+                            <span className="font-semibold text-foreground truncate">
+                                @{post.user?.username || "unknown"}
+                            </span>
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-muted-foreground shrink-0">{timeAgo(post.createdAt)}</span>
+                        </div>
+
+                        <div className="shrink-0">
+                            <button
+                                ref={menuButtonRef}
+                                onClick={toggleMenu}
+                                aria-label="Post options"
+                                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                            </button>
+
+                            {showMenu && menuRect && (
+                                <PostMenu
+                                    isOwnPost={isOwnPost}
+                                    onReport={handleReport}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                    deleting={deleting}
+                                    onClose={() => setShowMenu(false)}
+                                    anchorRect={menuRect}
+                                />
+                            )}
+                        </div>
                     </div>
 
                     <p className="mt-1 text-[15px] text-foreground whitespace-pre-wrap break-words">
