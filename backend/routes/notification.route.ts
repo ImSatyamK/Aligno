@@ -5,5 +5,5 @@ import { getAllNotifications, deleteNotifications } from "../controllers/notific
 
 export const notificationRouter = express.Router()
 
-notificationRouter.get('/all', protectRoute, getAllNotifications)
+notificationRouter.get('/', protectRoute, getAllNotifications)
 notificationRouter.delete('/', protectRoute, deleteNotifications)
