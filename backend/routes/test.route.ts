@@ -14,16 +14,15 @@ import {
 
 export const testRouter = express.Router();
 
-testRouter.get("/", protectRoute, getMyTests); // DONE
-testRouter.post("/", protectRoute, createTest); // DONE
+testRouter.get("/", protectRoute, getMyTests);
+testRouter.post("/", protectRoute, createTest);
 
-testRouter.get("/attempts/by-test/:testId", protectRoute, getAttemptByTestId); // DONE
-testRouter.post("/attempts/:testId", protectRoute, startAttempt); // DONE
+testRouter.get("/attempts/by-test/:testId", protectRoute, getAttemptByTestId);
+testRouter.post("/attempts/:testId", protectRoute, startAttempt);
 
-testRouter.put("/attempts/:attemptId/answer", protectRoute, saveAnswer); // DONE
-testRouter.delete("/attempts/:attemptId/answer", protectRoute, clearAnswer); // DONE
+testRouter.put("/attempts/:attemptId/answer", protectRoute, saveAnswer);
+testRouter.delete("/attempts/:attemptId/answer", protectRoute, clearAnswer);
 
-testRouter.get("/attempts/:attemptId", protectRoute, getAttemptById); // DONE
-
+testRouter.get("/attempts/:attemptId", protectRoute, getAttemptById);
 
 testRouter.put("/attempts/:attemptId/submit", protectRoute, submitAttempt);
