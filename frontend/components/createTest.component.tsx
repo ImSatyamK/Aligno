@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createTest } from "@/api/test";
 import { toast } from "./ui/toast";
 import { Plus, Trash2, Upload, Copy, Check as CheckIcon } from "lucide-react";
+import Link from "next/link";
 
 interface QuestionDraft {
     question: string;
@@ -179,9 +180,16 @@ export function CreateTestForm() {
 
     return (
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-            <div>
-                <h1 className="text-2xl font-semibold text-foreground">Create a test</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Set up questions, options, and scoring.</p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold text-foreground">Create a test</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Set up questions, options, and scoring.</p>
+                </div>
+                <Link href={'/test'}>
+                    <button className="mb-4 inline-flex items-center justify-center rounded-md bg-[#C08A2E] text-white hover:bg-[#A16D1A] focus:outline-none focus:ring-2 focus:ring-[#C08A2E] focus:ring-offset-2 px-4 py-2 text-sm font-medium transition">
+                        ← Back
+                    </button>
+                </Link>
             </div>
 
             <div className="space-y-4">
@@ -245,18 +253,16 @@ export function CreateTestForm() {
                 <button
                     type="button"
                     onClick={() => setMode("guided")}
-                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${
-                        mode === "guided" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                    }`}
+                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${mode === "guided" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                        }`}
                 >
                     Guided
                 </button>
                 <button
                     type="button"
                     onClick={() => setMode("json")}
-                    className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${
-                        mode === "json" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                    }`}
+                    className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${mode === "json" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                        }`}
                 >
                     JSON
                 </button>
