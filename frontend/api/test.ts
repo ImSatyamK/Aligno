@@ -40,3 +40,27 @@ export async function getMyTests() {
         return { success: false, error: 'An unexpected error occurred' };
     }
 }
+
+export async function getAttemptByTestId(testId: string) {
+    try{
+        const response = await instance.get(`/api/test/attempts/by-test/${testId}`);
+        return { success: true, data: response.data };
+    }catch(error){
+        if (axios.isAxiosError(error)) {
+            return { success: false, error: error.response?.data || error.message };
+        }
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
+
+export async function getAttemptById(testId: string) {
+    try{
+        const response = await instance.get(`/api/test/${testId}`);
+        return { success: true, data: response.data };
+    }catch(error){
+        if (axios.isAxiosError(error)) {
+            return { success: false, error: error.response?.data || error.message };
+        }
+        return { success: false, error: 'An unexpected error occurred' };
+    }
+}
