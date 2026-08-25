@@ -15,7 +15,7 @@ export function TestCard({ test }: { test: Test }) {
     return (
         <Link
             href={`/test/${test._id}`}
-            className="block w-full rounded-md border border-foreground/10 bg-background p-5 transition-colors hover:border-[#C08A2E]/40"
+            className="block w-full max-w-xl rounded-md border border-foreground/10 bg-background p-5 transition-colors hover:border-[#C08A2E]/40"
         >
             <h2 className="text-lg font-semibold text-foreground">{test.title}</h2>
 

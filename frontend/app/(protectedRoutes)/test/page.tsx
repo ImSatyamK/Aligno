@@ -17,8 +17,8 @@ export default async function TestPage() {
     const tests = response.data.tests ?? [];
 
     return (
-        <div className="max-w-full mx-auto px-4 py-8">
-            <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 px-10 py-6">
+            <div className="flex justify-center gap-10 items-center mt-4 mb-4">
                 <h1 className="text-2xl font-semibold text-foreground">Total Tests: {tests.length}</h1>
 
                 <Link
@@ -42,7 +42,7 @@ export default async function TestPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4 w-full mt-6">
+                <div className="flex flex-col gap-4 w-full mt-6 items-center justify-center">
                     {tests.map((test: any) => (
                         <TestCard key={test._id} test={test} />
                     ))}
