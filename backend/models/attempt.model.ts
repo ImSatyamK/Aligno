@@ -4,6 +4,13 @@ interface IAttempt {
     user: mongoose.Types.ObjectId;
     test: mongoose.Types.ObjectId;
     answers: Map<string, number>;
+    questions: {
+        question: string,
+        options: string[],
+        correctOption: number
+    }[],
+    correctMarks: number;
+    negativeMarks: number;
     currentQuestion: number;
     score: number;
     startedAt: Date;
@@ -33,6 +40,35 @@ const attemptSchema = new Schema<IAttempt>(
             type: Map,
             of: Number,
             default: {},
+        },
+
+        questions: {
+            type: [{
+                _id: false,
+                question: {
+                    type: String,
+                    required: true
+                },
+                options: {
+                    type: [String],
+                    required: true
+                },
+                correctOption: {
+                    type: Number,
+                    required: true
+                }
+            }],
+            required: true,
+        },
+
+        correctMarks: {
+            type: Number,
+            required: true,
+        },
+
+        negativeMarks: {
+            type: Number,
+            required: true,
         },
 
         currentQuestion: {

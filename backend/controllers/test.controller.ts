@@ -252,6 +252,9 @@ export async function submitAttempt(req: Request, res: Response) {
         attempt.score = score;
         attempt.status = "SUBMITTED";
         attempt.submittedAt = new Date();
+        attempt.questions = test.questions;
+        attempt.correctMarks = test.correctMarks;
+        attempt.negativeMarks = test.negativeMarks;
 
         await attempt.save();
 
