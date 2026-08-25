@@ -107,7 +107,9 @@ export async function updateUser(req: Request, res: Response) {
         }
 
         const { name, username, email, currPassword, newPassword, bio, link } = req.body
-        let { profileImg, coverImg } = req.body
+        const f = req.files as { profileImg?: Express.Multer.File[], coverImg?: Express.Multer.File[] }
+        let profileImg = f.profileImg?.[0]?.buffer
+        let coverImg = f.coverImg?.[0]?.buffer
 
         let hashedPassword: string | undefined
 
@@ -118,7 +120,15 @@ export async function updateUser(req: Request, res: Response) {
 
             const isMatch = await bcryptjs.compare(currPassword, currentUser.password)
             if (!isMatch) {
-                return res.status(400).json({ error: 'Current password is incorrect' })
+                return res.status(400).json({ error: 'Incorrect Password' })
+            }
+
+            if (currPassword === newPassword) {
+                return res.status(400).json({ error: 'New password cannot be the same as the current password' })
+            }
+
+            if (newPassword.length < 6) {
+                return res.status(400).json({ error: 'New password must be at least 6 characters long' })
             }
 
             hashedPassword = await bcryptjs.hash(newPassword, 10)
@@ -129,8 +139,13 @@ export async function updateUser(req: Request, res: Response) {
                 const publicId = getCloudinaryPublicId(currentUser.profileImg, 'profile_images')
                 await cloudinary.uploader.destroy(publicId)
             }
-            const profileImgResponse = await cloudinary.uploader.upload(profileImg, { folder: 'profile_images' })
-            profileImg = profileImgResponse.secure_url
+            const upload = await new Promise<any>((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    { folder: 'profile_images' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                ).end(profileImg)
+            })
+            profileImg = upload.secure_url
         }
 
         if (coverImg) {
@@ -138,8 +153,13 @@ export async function updateUser(req: Request, res: Response) {
                 const publicId = getCloudinaryPublicId(currentUser.coverImg, 'cover_images')
                 await cloudinary.uploader.destroy(publicId)
             }
-            const coverImgResponse = await cloudinary.uploader.upload(coverImg, { folder: 'cover_images' })
-            coverImg = coverImgResponse.secure_url
+            const upload = await new Promise<any>((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    { folder: 'cover_images' },
+                    (err, result) => err ? reject(err) : resolve(result)
+                ).end(coverImg)
+            })
+            coverImg = upload.secure_url
         }
 
         const updatedUser = await User.findByIdAndUpdate(
