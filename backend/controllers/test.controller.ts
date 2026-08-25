@@ -88,7 +88,7 @@ export async function startAttempt(req: Request, res: Response) {
 
         const { _id, duration } = test
         const startedAt = new Date()
-        const endsAt = new Date(startedAt.getTime() + duration * 60000)
+        const endsAt = new Date(startedAt.getTime() + duration * 1000)
         const attempt = await Attempt.create({
             user: req.user!._id,
             test: _id,

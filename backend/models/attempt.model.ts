@@ -4,13 +4,13 @@ interface IAttempt {
     user: mongoose.Types.ObjectId;
     test: mongoose.Types.ObjectId;
     answers: Map<string, number>;
-    questions: {
+    questions?: {
         question: string,
         options: string[],
         correctOption: number
     }[],
-    correctMarks: number;
-    negativeMarks: number;
+    correctMarks?: number;
+    negativeMarks?: number;
     currentQuestion: number;
     score: number;
     startedAt: Date;
