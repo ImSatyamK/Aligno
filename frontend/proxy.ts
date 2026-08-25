@@ -4,7 +4,7 @@ const unprotectedRoutes = ["/login", "/signup"];
 
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const isProtectedRoute = !(unprotectedRoutes.some((route) => pathname.startsWith(route)));
+    const isProtectedRoute = !unprotectedRoutes.some((route) => pathname.startsWith(route));
     const token = request.cookies.has("jwt");
 
     if (isProtectedRoute) {
@@ -21,5 +21,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/", "/login", "/signup"],
+    matcher: [
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico)).*)',
+    ],
 };
