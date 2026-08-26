@@ -97,8 +97,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                 toast.add({ title: "Profile updated", type: "success" });
                 setCurrPassword("");
                 setNewPassword("");
-                router.push("/profile");
-                router.refresh();
+                router.push("/");
             } else {
                 toast.add({
                     title: "Error",
@@ -115,15 +114,19 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6 px-10 w-full max-w-2xl mx-auto">
-            <Link href={from === "/profile" ? "/profile" : "/"}>
-                <button
-                    type="button"
-                    className="mb-4 flex items-center gap-1.5 rounded-md bg-foreground/10 px-3 py-1.5 text-sm font-medium text-foreground/70 hover:bg-foreground/10 hover:text-foreground transition-colors"
-                >
-                    {from === "/profile" ? "Go Back" : "Skip"}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-6 px-10 w-full max-w-2xl mx-auto mb-10">
+            {from === '/signup' && (
+                <Link href={"/"}>
+                    <button
+                        type="button"
+                        className="mb-4 flex items-center gap-1.5 rounded-md bg-foreground/10 px-3 py-1.5 text-sm font-medium text-foreground/70 hover:bg-foreground/10 hover:text-foreground transition-colors"
+                    >
+                        {"Skip"}
                 </button>
-            </Link>
+            </Link>)}
+            <h3 className="text-lg font-semibold text-foreground">
+                {from === "/profile" ? `Hi ${user.name.split(" ")[0]}, edit your profile` : `Hii ${user.name.split(" ")[0]}, let's configure your profile`}
+            </h3>
             <div className="relative">
                 <div
                     className="h-32 w-full rounded-md bg-foreground/5 overflow-hidden cursor-pointer group"
@@ -179,25 +182,25 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
             </div>
 
             <div className="pt-8 space-y-4">
-                <div>
+                {from === "/profile" && (<div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Name</label>
                     <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
-                </div>
+                </div>)}
 
-                <div>
+                {from === "/profile" && (<div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Username</label>
                     <input
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
-                </div>
+                </div>)}
 
-                <div>
+                {from === "/profile" && (<div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
                     <input
                         type="email"
@@ -205,7 +208,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
-                </div>
+                </div>)}
 
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Bio</label>
@@ -228,10 +231,11 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                 </div>
             </div>
 
-            <div className="border-t border-foreground/10 pt-5 space-y-4">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                    Change password
-                </h2>
+            {from === "/profile" && (
+                <div className="border-t border-foreground/10 pt-5 space-y-4">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        Change password
+                    </h2>
 
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Current password</label>
@@ -252,7 +256,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
                 </div>
-            </div>
+            </div>)}
             <button
                 type="submit"
                 disabled={submitting}

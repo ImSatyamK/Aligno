@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signUp } from "../api/auth";
 import { toast } from "./ui/toast";
 import Link from "next/link"
+import { useRouter } from "next/navigation";
 
 const FIELDS = [
     { key: "name", label: "Name", type: "text", placeholder: "John Doe", span: 1 },
@@ -13,6 +14,8 @@ const FIELDS = [
 ];
 
 export function SignupComponent() {
+    const router = useRouter();
+
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
@@ -42,6 +45,7 @@ export function SignupComponent() {
         }
 
         setSubmitting(false);
+        router.push("/configure-profile");
     };
 
     return (
