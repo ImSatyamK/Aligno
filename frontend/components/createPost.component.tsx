@@ -8,7 +8,7 @@ import { compressImage } from '@/lib/compressImage'
 import { createPost } from '@/api/post'
 import { toast } from './ui/toast'
 
-export default function CreatePostForm({
+export function CreatePostForm({
     currentUsername,
     currentUserImg,
 }: {

@@ -1,7 +1,5 @@
-import CreatePostForm from '@/components/createPost.component'
+import { CreatePostForm } from '@/components/createPost.component'
 import { getCurrentUser } from '@/api/auth'
-
-
 
 export default async function CreatePostPage() {
     const currentUser = await getCurrentUser()

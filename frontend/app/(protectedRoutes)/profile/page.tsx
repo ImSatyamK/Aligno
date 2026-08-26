@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/api/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { Settings, Link as LinkIcon } from "lucide-react";
+import { Settings, Link as LinkIcon, Pencil } from "lucide-react";
 import { getUserPosts } from "@/api/post";
 import { PostCard } from "@/components/post-card";
 
@@ -46,14 +46,22 @@ export default async function ProfilePage() {
                         height={88}
                         className="h-[88px] w-[88px] shrink-0 rounded-full border-4 border-background object-cover"
                     />
-
-                    <Link
-                        href="/settings"
-                        aria-label="Settings"
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-input text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
-                    >
-                        <Settings className="h-4 w-4" />
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link
+                            href="/edit-profile"
+                            aria-label="Edit Profile"
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-input text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Link>
+                        <Link
+                            href="/settings"
+                            aria-label="Settings"
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-input text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                        >
+                            <Settings className="h-4 w-4" />
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Name */}
