@@ -63,12 +63,11 @@ const attemptSchema = new Schema<IAttempt>(
 
         correctMarks: {
             type: Number,
-            required: true,
         },
 
         negativeMarks: {
             type: Number,
-            required: true,
+            default: 0,
         },
 
         currentQuestion: {
