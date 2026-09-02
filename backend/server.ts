@@ -10,6 +10,7 @@ import { userRouter } from './routes/user.route'
 import { postRouter } from './routes/post.route'
 import { notificationRouter } from './routes/notification.route'
 import { testRouter } from './routes/test.route'
+import { attemptRouter } from './routes/attempt.route'
 
 dotenv.config()
 const app = express()
@@ -35,6 +36,7 @@ app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
 app.use('/api/notification', notificationRouter)
 app.use('/api/test', testRouter)
+app.use('api/attempt', attemptRouter)
 
 const PORT = process.env.PORT || 5000
 

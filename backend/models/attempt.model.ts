@@ -3,12 +3,11 @@ import mongoose, { Schema, Model } from "mongoose";
 interface IAttempt {
     user: mongoose.Types.ObjectId;
     test: mongoose.Types.ObjectId;
-    answers: Map<string, number>;
     questions?: {
         question: string,
-        options: string[],
-        correctOption: number
+        options: string[]
     }[],
+    answers: Map<string, number>;
     correctMarks?: number;
     negativeMarks?: number;
     currentQuestion: number;
@@ -36,12 +35,6 @@ const attemptSchema = new Schema<IAttempt>(
             required: true,
         },
 
-        answers: {
-            type: Map,
-            of: Number,
-            default: {},
-        },
-
         questions: {
             type: [{
                 _id: false,
@@ -52,22 +45,25 @@ const attemptSchema = new Schema<IAttempt>(
                 options: {
                     type: [String],
                     required: true
-                },
-                correctOption: {
-                    type: Number,
-                    required: true
                 }
             }],
             required: true,
         },
 
+        answers: {
+            type: Map,
+            of: Number,
+            default: {},
+        },
+
         correctMarks: {
             type: Number,
+            required: true,
         },
 
         negativeMarks: {
             type: Number,
-            default: 0,
+            required: true,
         },
 
         currentQuestion: {
