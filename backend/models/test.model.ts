@@ -4,15 +4,17 @@ interface ITest extends Document {
     createdBy: mongoose.Types.ObjectId,
     title: string,
     description?: string,
+    instructions?: string,
     duration: number,
     questions: {
         question: string,
         options: string[],
-        correctOption: number
+        correctOption: number,
     }[],
     questionCount: number,
     correctMarks: number,
-    negativeMarks: number
+    negativeMarks: number,
+    visibility: "PUBLIC" | "PRIVATE",
 
     createdAt: Date,
     updatedAt: Date
@@ -31,6 +33,9 @@ const testSchema = new Schema<ITest>({
     description: {
         type: String,
     },
+    instructions: {
+        type: String,
+    },
     duration: {
         type: Number,
         required: true,
@@ -39,6 +44,11 @@ const testSchema = new Schema<ITest>({
     questions: {
         type:[{
             _id: false,
+            variant: {
+                type: String,
+                enum: ["SingleChoice", "MultipleChoice", "Matcher", "WriteAnswer"],
+                required: true
+            },
             question: {
                 type: String,
                 required: true
@@ -54,11 +64,6 @@ const testSchema = new Schema<ITest>({
         }],
         required: true,
     },
-    questionCount: {
-        type: Number,
-        required: true,
-        min: 1
-    },
     correctMarks: {
         type: Number,
         default: 1,
@@ -66,6 +71,11 @@ const testSchema = new Schema<ITest>({
     negativeMarks: {
         type: Number,
         default: 0,
+    },
+    visibility: {
+        type: String,
+        enum: ["PUBLIC", "PRIVATE"],
+        default: "PRIVATE"
     }
 }, {
     timestamps: true
