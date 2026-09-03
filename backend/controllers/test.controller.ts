@@ -35,7 +35,20 @@ export async function createTest(req: Request, res: Response) {
     }
 }
 
-export async function getTests(req: Request, res: Response) {
+export async function getMyTests(req: Request, res: Response) {
+    try {
+        const myTests = await Test.find({
+            createdBy: req.user!._id
+        }).select("-questions").lean();
+
+        return res.status(200).json({ success: true, myTests });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+export async function getPublicTests(req: Request, res: Response) {
     try {
         const publicTests = await Test.aggregate([
             { $match: { visibility: "PUBLIC" } },
@@ -43,17 +56,7 @@ export async function getTests(req: Request, res: Response) {
             { $project: { questions: 0 } }
         ])
 
-        const myTests = await Test.find({
-            createdBy: req.user!._id
-        }).select("-questions").lean();
-
-
-
-        return res.status(200).json({
-            success: true,
-            publicTests,
-            myTests
-        });
+        return res.status(200).json({success: true,publicTests})
 
     } catch (error) {
         console.error(error);

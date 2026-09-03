@@ -3,7 +3,8 @@ import express from "express";
 import { protectRoute } from "../middleware/protectRoute";
 import {
     createTest,
-    getTests,
+    getMyTests,
+    getPublicTests,
     getTestDetail,
     updateTest,
     deleteTest
@@ -12,7 +13,8 @@ import {
 export const testRouter = express.Router();
 
 testRouter.post("/", protectRoute, createTest);
-testRouter.get("/", protectRoute, getTests);
+testRouter.get("/mine", protectRoute, getMyTests);
+testRouter.get("/public", getPublicTests);
 testRouter.get("/:testId", protectRoute, getTestDetail);
 testRouter.put("/:testId", protectRoute, updateTest);
 testRouter.delete("/:testId", protectRoute, deleteTest);
