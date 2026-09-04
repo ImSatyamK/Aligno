@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Test from "../models/test.model";
 import Attempt from "../models/attempt.model";
+import mongoose from "mongoose";
 
 export async function createTest(req: Request, res: Response) {
     try {
@@ -51,7 +52,7 @@ export async function getMyTests(req: Request, res: Response) {
 export async function getPublicTests(req: Request, res: Response) {
     try {
         const publicTests = await Test.aggregate([
-            { $match: { visibility: "PUBLIC" } },
+            { $match: { visibility: "PUBLIC", createdBy: { $ne: new mongoose.Types.ObjectId(req.user!._id) } } },
             { $sample: { size: 10 } },
             { $project: { questions: 0 } }
         ])

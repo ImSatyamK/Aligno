@@ -14,7 +14,7 @@ export const testRouter = express.Router();
 
 testRouter.post("/", protectRoute, createTest);
 testRouter.get("/mine", protectRoute, getMyTests);
-testRouter.get("/public", getPublicTests);
+testRouter.get("/public", protectRoute, getPublicTests);
 testRouter.get("/:testId", protectRoute, getTestDetail);
 testRouter.put("/:testId", protectRoute, updateTest);
 testRouter.delete("/:testId", protectRoute, deleteTest);
