@@ -51,11 +51,10 @@ export async function getMyTests(req: Request, res: Response) {
 
 export async function getPublicTests(req: Request, res: Response) {
     try {
-        const publicTests = await Test.aggregate([
-            { $match: { visibility: "PUBLIC", createdBy: { $ne: new mongoose.Types.ObjectId(req.user!._id) } } },
-            { $sample: { size: 10 } },
-            { $project: { questions: 0 } }
-        ])
+        const publicTests = await Test.find({
+            visibility: "PUBLIC",
+            createdBy: { $ne: req.user!._id}
+        }).select("-questions").lean();
 
         return res.status(200).json({success: true,publicTests})
 
