@@ -1,53 +1,14 @@
-import Link from "next/link";
-import { Plus, ClipboardList } from "lucide-react";
-import { getMyTests } from '@/api/test';
-import { TestCard } from '@/components/testCard';
+import { TestPageComponent } from '@/components/test.component';
+import { getMyTests, getPublicTests } from '@/api/test';
 
 export default async function TestPage() {
-    const response = await getMyTests();
-
-    if (!response.success) {
-        return (
-            <div className="px-4 py-10 text-center text-muted-foreground">
-                Couldn't load your tests.
-            </div>
-        );
-    }
-
-    const tests = response.data.tests ?? [];
-
+    const myTestsResponse = await getMyTests();
+    const publicTestsResponse = await getPublicTests();
+    const myTests = myTestsResponse.success ? myTestsResponse.data.myTests : [];
+    const publicTests = publicTestsResponse.success ? publicTestsResponse.data.publicTests : [];
     return (
-        <div className="flex flex-col gap-4 px-10 py-6">
-            <div className="flex justify-center gap-10 items-center mt-4 mb-4">
-                <h1 className="text-2xl font-semibold text-foreground">Total Tests: {tests.length}</h1>
-
-                <Link
-                    href="/test/create"
-                    className="flex items-center gap-1.5 rounded-md bg-[#C08A2E] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition"
-                >
-                    <Plus className="h-4 w-4" />
-                    Create test
-                </Link>
-            </div>
-
-            {tests.length === 0 ? (
-                <div className="mt-16 flex flex-col items-center text-center">
-                    <ClipboardList className="h-10 w-10 text-muted-foreground/50" />
-                    <p className="mt-3 text-muted-foreground">You haven't created any tests yet.</p>
-                    <Link
-                        href="/test/create"
-                        className="mt-4 text-sm font-medium text-[#C08A2E] hover:underline"
-                    >
-                        Create your first test
-                    </Link>
-                </div>
-            ) : (
-                <div className="flex flex-col gap-4 w-full mt-6 items-center justify-center">
-                    {tests.map((test: any) => (
-                        <TestCard key={test._id} test={test} />
-                    ))}
-                </div>
-            )}
+        <div className="flex flex-col gap-4 px-10 py-6 w-full">
+            <TestPageComponent myTests={myTests} publicTests={publicTests} />
         </div>
     );
 }
