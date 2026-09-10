@@ -58,9 +58,11 @@ export function CreateTestForm() {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [instructions, setInstructions] = useState("")
     const [duration, setDuration] = useState(30);
     const [correctMarks, setCorrectMarks] = useState(1);
     const [negativeMarks, setNegativeMarks] = useState(0);
+    const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>('PRIVATE')
     const [questions, setQuestions] = useState<QuestionDraft[]>([emptyQuestion()]);
     const [jsonText, setJsonText] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -159,10 +161,12 @@ export function CreateTestForm() {
         const result = await createTest({
             title: title.trim(),
             description: description.trim() || undefined,
+            instructions,
             duration,
             questions,
             correctMarks,
             negativeMarks,
+            visibility
         });
 
         if (result.success) {
@@ -193,6 +197,29 @@ export function CreateTestForm() {
             </div>
 
             <div className="space-y-4">
+                <div className="flex gap-100">
+                    <label className="block text-sm font-medium text-foreground mb-1.5">VISIBILITY</label>
+                    <div className="flex border border-input rounded-md w-fit overflow-hidden">
+
+                        <button
+                            type="button"
+                            onClick={() => setVisibility('PUBLIC')}
+                            className={`px-4 py-1.5 text-sm font-medium transition-colors ${visibility === "PUBLIC" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                                }`}
+                        >
+                            PUBLIC
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setVisibility('PRIVATE')}
+                            className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${visibility === "PRIVATE" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                                }`}
+                        >
+                            PRIVATE
+                        </button>
+                    </div>
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
                     <input
@@ -212,6 +239,18 @@ export function CreateTestForm() {
                         onChange={(e) => setDescription(e.target.value)}
                         rows={2}
                         placeholder="What does this test cover?"
+                        className="w-full resize-none rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                        Instructions <span className="text-muted-foreground font-normal">(optional)</span>
+                    </label>
+                    <textarea
+                        value={instructions}
+                        onChange={(e) => setInstructions(e.target.value)}
+                        rows={2}
+                        placeholder="Write the instructions for the test."
                         className="w-full resize-none rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
                 </div>
