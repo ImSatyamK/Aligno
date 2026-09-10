@@ -43,12 +43,6 @@ const testSchema = new Schema<ITest>({
     },
     questions: {
         type:[{
-            _id: false,
-            variant: {
-                type: String,
-                enum: ["SingleChoice", "MultipleChoice", "Matcher", "WriteAnswer"],
-                required: true
-            },
             question: {
                 type: String,
                 required: true

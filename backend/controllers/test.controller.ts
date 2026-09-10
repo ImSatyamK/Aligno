@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import Test from "../models/test.model";
 import Attempt from "../models/attempt.model";
-import mongoose from "mongoose";
 
 export async function createTest(req: Request, res: Response) {
     try {
