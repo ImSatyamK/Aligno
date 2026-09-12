@@ -38,7 +38,7 @@ export async function startAttempt(req: Request, res: Response) {
             startedAt,
             endsAt
         })
-        return res.status(201).json({ attempt, test })
+        return res.status(201).json({ attempt })
 
     } catch (error) {
         console.error(error);
@@ -74,7 +74,7 @@ export async function getAttempt(req: Request, res: Response) {
 export async function saveAnswer(req: Request, res: Response) {
     try {
         const { id } = req.params;
-        const { questionIndex, selectedOption, currentQuestion } = req.body;
+        const { questionIndex, answer, currentQuestion } = req.body;
 
         const attempt = await Attempt.findOne({
             _id: id,
@@ -83,21 +83,23 @@ export async function saveAnswer(req: Request, res: Response) {
         });
 
         if (!attempt) {
-            return res.status(404).json({error: "Attempt not found or submitted already"});
+            return res.status(404).json({ error: "Attempt not found or submitted already" });
         }
 
-        attempt.answers.set(
-            questionIndex.toString(),
-            selectedOption
-        );
+        if (answer !== -1) {
+            attempt.answers.set(questionIndex.toString(), answer);
+        } else {
+            attempt.answers.delete(questionIndex.toString());
+        }
+
         attempt.currentQuestion = currentQuestion;
 
         await attempt.save();
 
-        return res.status(200).json({success: true});
+        return res.status(200).json({ success: true });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({error: "Internal server error",});
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 

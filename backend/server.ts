@@ -36,7 +36,7 @@ app.use('/api/user', userRouter)
 app.use('/api/post', postRouter)
 app.use('/api/notification', notificationRouter)
 app.use('/api/test', testRouter)
-app.use('api/attempt', attemptRouter)
+app.use('/api/attempt', attemptRouter)
 
 const PORT = process.env.PORT || 5000
 
