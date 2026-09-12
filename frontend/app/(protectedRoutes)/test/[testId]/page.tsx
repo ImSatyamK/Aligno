@@ -67,21 +67,12 @@ export default async function TestDetailPage({ params }: { params: Promise<{ tes
             )}
 
             <div className="mt-6">
-                {inProgressAttempt ? (
                     <Link
-                        href={`/test/attempt/${inProgressAttempt._id}`}
+                        href={`/test/${test._id}/attempt/`}
                         className="block w-full rounded-md bg-[#C08A2E] py-3 text-center text-sm font-semibold text-white hover:opacity-90 transition"
                     >
-                        Continue attempt
+                        {inProgressAttempt ? "Continue Attempt" : "Start Attempt"}
                     </Link>
-                ) : (
-                    <button
-                        type="button"
-                        className="w-full rounded-md bg-[#C08A2E] py-3 text-sm font-semibold text-white hover:opacity-90 transition"
-                    >
-                        Start test
-                    </button>
-                )}
             </div>
 
             {attempts && attempts.length > 0 && (
