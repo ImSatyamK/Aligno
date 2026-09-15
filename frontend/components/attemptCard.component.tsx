@@ -5,17 +5,17 @@ import Link from "next/link";
 import { timeAgo } from '@/lib/timeAgo';
 import { Book, Clock, Timer, ChevronDown, Check, X } from 'lucide-react';
 
-interface AttemptQuestion {
+interface Question {
     question: string;
     options: string[];
-    correctOption: number;
+    correctOption?: number;
 }
 
 interface Attempt {
     _id: string;
     test: string;
     answers: Record<string, number>;
-    questions: AttemptQuestion[];
+    questions: Question[];
     correctMarks: number;
     negativeMarks: number;
     score: number;
@@ -23,6 +23,18 @@ interface Attempt {
     endsAt: string;
     submittedAt?: string;
     status: "IN_PROGRESS" | "SUBMITTED";
+}
+
+interface Test {
+    _id: string;
+    title: string;
+    description?: string;
+    duration: number;
+    questions: Question[];
+    questionCount: number;
+    correctMarks: number;
+    negativeMarks: number;
+    visibility: "PUBLIC" | "PRIVATE";
 }
 
 function formatDuration(ms: number): string {
@@ -33,7 +45,7 @@ function formatDuration(ms: number): string {
     return `${minutes}m ${seconds}s`;
 }
 
-export function AttemptCard({ attempt }: { attempt: Attempt }) {
+export function AttemptCard({ attempt, test }: { attempt: Attempt; test: Test }) {
     const [expanded, setExpanded] = useState(false);
     const isSubmitted = attempt.status === "SUBMITTED";
 
@@ -42,7 +54,7 @@ export function AttemptCard({ attempt }: { attempt: Attempt }) {
     const unansweredCount = totalQuestions - answeredCount;
 
     const correctCount = attempt.questions?.filter(
-        (q, i) => attempt.answers?.[String(i)] === q.correctOption
+        (q, i) => attempt.answers?.[String(i)] === test.questions[i].correctOption
     ).length ?? 0;
     const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
@@ -145,7 +157,7 @@ export function AttemptCard({ attempt }: { attempt: Attempt }) {
 
                                         <div className="mt-2 space-y-1.5">
                                             {q.options.map((option, oIndex) => {
-                                                const isCorrect = oIndex === q.correctOption;
+                                                const isCorrect = oIndex === test.questions[qIndex].correctOption;
                                                 const isSelected = oIndex === selected;
 
                                                 let stateClasses = "border-foreground/10";

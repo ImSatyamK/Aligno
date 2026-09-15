@@ -82,7 +82,7 @@ export default async function TestDetailPage({ params }: { params: Promise<{ tes
                     </h2>
                     <div className="mt-3 flex flex-col gap-4">
                         {attempts.map((attempt: any) => (
-                            <AttemptCard key={attempt._id} attempt={attempt} />
+                            <AttemptCard key={attempt._id} attempt={attempt} test={test} />
                         ))}
                     </div>
                 </div>
