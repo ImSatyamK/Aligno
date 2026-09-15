@@ -66,7 +66,7 @@ export async function getPublicTests(req: Request, res: Response) {
 export async function getTestDetail(req: Request, res: Response) {
     try {
         const { testId } = req.params
-        const test = await Test.findById(testId).select("-questions").lean()
+        const test = await Test.findById(testId).lean()
         if (!test) {
             return res.status(404).json({ error: "Test not found" })
         }
