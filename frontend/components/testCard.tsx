@@ -17,7 +17,7 @@ export function TestCard({ test }: { test: ITest }) {
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
                 <div className="flex items-center gap-1.5 text-foreground/70">
                     <Clock className="h-4 w-4" />
-                    {Math.round(test.duration / 60)} min
+                    {(test.duration / 60).toFixed(2)} min
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground/70">
                     <ListChecks className="h-4 w-4" />

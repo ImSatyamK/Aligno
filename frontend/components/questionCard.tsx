@@ -27,6 +27,7 @@ interface IAttempt {
 type Status = "not-visited" | "not-answered" | "answered" | "marked" | "answered-marked";
 
 function formatTime(ms: number): string {
+    console.log("Formatting time:", ms);
     if (ms <= 0) return "00:00:00";
     const totalSeconds = Math.floor(ms / 1000);
     const h = Math.floor(totalSeconds / 3600);
@@ -131,6 +132,13 @@ export function QuestionCard({ attempt, testId }: { attempt: IAttempt; testId: s
     const saveAndNext = async (markCurrent = false) => {
         setSaving(true);
         try {
+            if (marked.has(currentQuestion)) {
+                setMarked((prev) => {
+                    const newMarked = new Set(prev);
+                    newMarked.delete(currentQuestion);
+                    return newMarked;
+                });
+            }
             const nextIndex = Math.min(currentQuestion + 1, total - 1);
             const answerToSave = selected !== undefined ? selected : -1;
 
@@ -185,9 +193,8 @@ export function QuestionCard({ attempt, testId }: { attempt: IAttempt; testId: s
                 </span>
                 <div className="flex items-center gap-3">
                     <span
-                        className={`rounded-md px-3 py-1 text-sm font-mono font-semibold ${
-                            isLowTime ? "bg-red-500/10 text-red-500" : "bg-foreground/5 text-foreground"
-                        }`}
+                        className={`rounded-md px-3 py-1 text-sm font-mono font-semibold ${isLowTime ? "bg-red-500/10 text-red-500" : "bg-foreground/5 text-foreground"
+                            }`}
                     >
                         {formatTime(timeLeft)}
                     </span>
@@ -224,11 +231,10 @@ export function QuestionCard({ attempt, testId }: { attempt: IAttempt; testId: s
                         {question.options.map((option, oIndex) => (
                             <label
                                 key={oIndex}
-                                className={`flex items-center gap-3 rounded-md border p-3 text-sm cursor-pointer transition-colors ${
-                                    selected === oIndex
+                                className={`flex items-center gap-3 rounded-md border p-3 text-sm cursor-pointer transition-colors ${selected === oIndex
                                         ? "border-[#C08A2E] bg-[#C08A2E]/5"
                                         : "border-input hover:bg-foreground/5"
-                                }`}
+                                    }`}
                             >
                                 <input
                                     type="radio"
@@ -338,9 +344,8 @@ export function QuestionCard({ attempt, testId }: { attempt: IAttempt; testId: s
                             <button
                                 key={index}
                                 onClick={() => goTo(index)}
-                                className={`h-9 w-9 rounded-md text-xs font-semibold transition-colors ${
-                                    statusStyles[getStatus(index)]
-                                } ${index === currentQuestion ? "ring-2 ring-[#C08A2E] ring-offset-2 ring-offset-background" : ""}`}
+                                className={`h-9 w-9 rounded-md text-xs font-semibold transition-colors ${statusStyles[getStatus(index)]
+                                    } ${index === currentQuestion ? "ring-2 ring-[#C08A2E] ring-offset-2 ring-offset-background" : ""}`}
                             >
                                 {index + 1}
                             </button>
