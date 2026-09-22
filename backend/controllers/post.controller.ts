@@ -151,7 +151,10 @@ export async function getAllPosts(req: Request, res: Response){
             return res.status(404).json({error: 'User not found'})
         }
 
-        const posts = await Post.find().sort({ createdAt: -1 }).populate({
+        const publicPosts = await Post.find({
+            visibility: "PUBLIC",
+            user: { $ne: userId }
+        }).sort({ createdAt: -1 }).populate({
             path: 'user',
             select: 'username profileImg'
         }).populate({
@@ -159,11 +162,23 @@ export async function getAllPosts(req: Request, res: Response){
             select: 'username profileImg'
         })
 
-        if (!posts) {
+        const taggedPosts = await Post.find({
+            tags: user.username
+        }).sort({ createdAt: -1 }).populate({
+            path: 'user',
+            select: 'username profileImg'
+        }).populate({
+            path: 'comments.user',
+            select: 'username profileImg'
+        })
+
+        const posts = [...publicPosts, ...taggedPosts].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+        if (!posts || posts.length === 0) {
             return res.status(200).json([])
         }
 
-        res.status(200).json({ posts })
+        res.status(200).json({ posts: posts })
     } catch (error) {
         console.log(error)
         res.status(500).json({error: 'Internal server error'})

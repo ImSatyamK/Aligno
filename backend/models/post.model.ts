@@ -12,6 +12,8 @@ export interface IPost extends Document{
     img: string,
     likes: mongoose.Types.ObjectId[],
     comments: IComment[],
+    visibility?: "PUBLIC" | "PRIVATE",
+    tags: string[],
     createdAt: Date,
     updatedAt: Date
 }
@@ -44,6 +46,14 @@ const postSchema = new Schema<IPost>({
             ref: "User",
             required: true
         }
+    }],
+    visibility: {
+        type: String,
+        enum: ["PUBLIC", "PRIVATE"],
+        default: "PUBLIC"
+    },
+    tags: [{
+        type: String
     }]
 }, { timestamps: true})
 
