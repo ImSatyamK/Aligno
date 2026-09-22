@@ -38,13 +38,13 @@ app.use('/api/notification', notificationRouter)
 app.use('/api/test', testRouter)
 app.use('/api/attempt', attemptRouter)
 
-const PORT = process.env.PORT || 5000
+const PORT = Number(process.env.PORT) || 5000
 
 const startServer = async () => {
     try {
         await connectDB()
         
-        app.listen(PORT, () => {
+        app.listen(PORT, "0.0.0.0", () => {
             console.log(`Server running on PORT ${PORT}`)
         })
     } catch (error) {
