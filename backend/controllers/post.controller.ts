@@ -8,7 +8,8 @@ import Notification from '../models/notification.model'
 
 export async function createPost(req: Request, res: Response) {
     try {
-        const { text } = req.body
+        const { text, visibility } = req.body
+        const tags = JSON.parse(req.body.tags)
         const file = req.file
 
         if (!req.user) return res.status(404).json({error: 'User not found'})
@@ -30,7 +31,7 @@ export async function createPost(req: Request, res: Response) {
             img = uploaded.secure_url
         }
 
-        const newPost = new Post({ user: req.user._id, text, img })
+        const newPost = new Post({ user: req.user._id, text, img, visibility, tags })
         await newPost.save()
         res.status(200).json({message: 'Post created successfully'})
     } catch (error) {

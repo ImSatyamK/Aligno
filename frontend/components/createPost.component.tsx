@@ -7,6 +7,8 @@ import { ImagePlus, X } from 'lucide-react'
 import { compressImage } from '@/lib/compressImage'
 import { createPost } from '@/api/post'
 import { toast } from './ui/toast'
+import { Switch } from './ui/switch'
+import { Trash2 } from 'lucide-react'
 
 export function CreatePostForm({
     currentUsername,
@@ -19,6 +21,9 @@ export function CreatePostForm({
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>('PUBLIC')
+    const [tags, setTags] = useState<string[]>([])
+    const [currentTag, setCurrentTag] = useState<string>('')
     const fileInputRef = useRef<HTMLInputElement>(null)
     const router = useRouter()
 
@@ -52,6 +57,8 @@ export function CreatePostForm({
         try {
             const formData = new FormData()
             formData.append('text', text)
+            formData.append('visibility', visibility)
+            formData.append('tags', JSON.stringify(tags))
 
             if (imageFile) {
                 const compressed = await compressImage(imageFile)
@@ -132,11 +139,63 @@ export function CreatePostForm({
                                 className="hidden"
                             />
                         </label>
+                    </div>
+                    <div className="mt-3">
+                        <div className="flex items-center justify-between gap-3">
+                            <input
+                                type="text"
+                                placeholder="Enter tags..."
+                                value={currentTag}
+                                onChange={(e) => setCurrentTag(e.target.value)}
+                                className="rounded-md border border-foreground/10 bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setTags([...tags, currentTag])
+                                    setCurrentTag('')
+                                }}
+                                className="rounded-md bg-[#C08A2E] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            >
+                                Add
+                            </button>
+                        </div>
 
+                        {tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="rounded bg-[gray] px-3 py-1 text-sm font-medium text-white"
+                                    >
+                                        {tag}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setTags(tags.filter((_, i) => i !== index));
+                                            }}
+                                            className="ml-2 text-xs text-white hover:text-gray-300"
+                                        >
+                                            <Trash2 className='w-3 h-3'/>
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                        <span className="text-sm">PRIVATE</span>
+                        <Switch
+                            checked={visibility === 'PRIVATE'}
+                            onCheckedChange={(checked) => setVisibility(checked ? 'PRIVATE' : 'PUBLIC')}
+                        />
+                    </div>
+                    <div className="mt-10 flex items-center justify-center gap-2">
                         <button
                             type="submit"
                             disabled={isSubmitting || (!text.trim() && !imageFile)}
-                            className="rounded-md bg-[#C08A2E] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            className="w-full rounded-md bg-[#C08A2E] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
                             {isSubmitting ? 'Posting...' : 'Post'}
                         </button>
