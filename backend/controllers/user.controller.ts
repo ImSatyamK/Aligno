@@ -3,14 +3,29 @@ import bcryptjs from 'bcryptjs'
 import { v2 as cloudinary } from 'cloudinary'
 
 import User from '../models/user.model'
+import Post from '../models/post.model'
 import Notification from '../models/notification.model'
 
 export async function getUserProfileById(req: Request, res: Response) {
+    if (!req.user) {
+        return res.status(400).json('Login first')
+    }
     const { id } = req.params
+    const currentUserId = req.user._id
+    const currentUser = await User.findById(currentUserId).select('-password')
+    if (!currentUser) {
+        return res.status(404).json('User not found')
+    }
     try {
         const user = await User.findById(id).select('-password')
         if (!user) {
             return res.status(404).json({ error: `No user found of id: ${id}` })
+        }
+        if (user._id.toString() === currentUserId.toString()) {
+            return res.status(200).json(user)
+        }
+        if (user.visibility === 'PRIVATE' && !currentUser.following.includes(user._id)) {
+            return res.status(403).json({ error: 'This profile is private' })
         }
         res.status(200).json(user)
     } catch (error) {
@@ -20,12 +35,26 @@ export async function getUserProfileById(req: Request, res: Response) {
 }
 
 export async function getUserProfile(req: Request, res: Response) {
+    if (!req.user) {
+        return res.status(400).json('Login first')
+    }
     const { username } = req.params
+    const currentUserId = req.user._id
+    const currentUser = await User.findById(currentUserId).select('-password')
+    if (!currentUser) {
+        return res.status(404).json('User not found')
+    }
 
     try {
         const user = await User.findOne({ username }).select('-password')
         if (!user) {
             return res.status(404).json({ error: `No user found of username: ${username}` })
+        }
+        if (user._id.toString() === currentUserId.toString()) {
+            return res.status(200).json(user)
+        }
+        if (user.visibility === 'PRIVATE' && !currentUser.following.includes(user._id)) {
+            return res.status(403).json({ error: 'This profile is private' })
         }
         res.status(200).json(user)
     } catch (error) {
@@ -58,12 +87,14 @@ export async function followUnfollowUser(req: Request, res: Response) {
         } else {
             await User.findByIdAndUpdate(currentUser._id, { $push: { following: userToModify._id } })
             await User.findByIdAndUpdate(userToModify._id, { $push: { followers: currentUser._id } })
-            const newNotification = new Notification({
-                from: currentUser._id,
-                to: userToModify._id,
-                message: `${currentUser.username} started following you`
-            })
-            await newNotification.save()
+            if (currentUser.visibility === "PUBLIC" || currentUser.followers.includes(userToModify._id)) {
+                const newNotification = new Notification({
+                    from: currentUser._id,
+                    to: userToModify._id,
+                    message: `${currentUser.username} started following you`
+                })
+                await newNotification.save()
+            }
 
             res.status(200).json({ message: "User followed successfully" })
         }
@@ -106,7 +137,7 @@ export async function updateUser(req: Request, res: Response) {
             return res.status(404).json('User not found')
         }
 
-        const { name, username, email, currPassword, newPassword, bio, link } = req.body
+        const { name, username, email, currPassword, newPassword, bio, link, visibility } = req.body
         const f = req.files as { profileImg?: Express.Multer.File[], coverImg?: Express.Multer.File[] }
         let profileImg = f.profileImg?.[0]?.buffer
         let coverImg = f.coverImg?.[0]?.buffer
@@ -162,6 +193,11 @@ export async function updateUser(req: Request, res: Response) {
             coverImg = upload.secure_url
         }
 
+        await Post.updateMany(
+            {user: req.user._id},
+            {$set: {userVisibility: visibility}}
+        )
+
         const updatedUser = await User.findByIdAndUpdate(
             currentUser._id,
             {
@@ -172,7 +208,8 @@ export async function updateUser(req: Request, res: Response) {
                 bio: bio || currentUser.bio,
                 link: link || currentUser.link,
                 profileImg: profileImg || currentUser.profileImg,
-                coverImg: coverImg || currentUser.coverImg
+                coverImg: coverImg || currentUser.coverImg,
+                visibility: visibility || currentUser.visibility
             },
             { returnDocument: 'after' }
         ).select('-password')

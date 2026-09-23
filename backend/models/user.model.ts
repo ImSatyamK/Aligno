@@ -12,6 +12,7 @@ export interface IUser extends Document {
     likes: mongoose.Types.ObjectId[];
     following: mongoose.Types.ObjectId[];
     followers: mongoose.Types.ObjectId[];
+    visibility: "PUBLIC" | "PRIVATE";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -65,7 +66,12 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: []
-    }]
+    }],
+    visibility : {
+        type: String,
+        enum: ["PUBLIC", "PRIVATE"],
+        default: "PUBLIC"
+    }
 },
     {timestamps: true})
 

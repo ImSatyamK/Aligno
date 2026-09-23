@@ -13,6 +13,7 @@ export interface IPost extends Document{
     likes: mongoose.Types.ObjectId[],
     comments: IComment[],
     visibility?: "PUBLIC" | "PRIVATE",
+    userVisibility?: "PUBLIC" | "PRIVATE",
     tags: string[],
     createdAt: Date,
     updatedAt: Date
@@ -48,6 +49,11 @@ const postSchema = new Schema<IPost>({
         }
     }],
     visibility: {
+        type: String,
+        enum: ["PUBLIC", "PRIVATE"],
+        default: "PUBLIC"
+    },
+    userVisibility: {
         type: String,
         enum: ["PUBLIC", "PRIVATE"],
         default: "PUBLIC"
