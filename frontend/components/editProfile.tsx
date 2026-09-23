@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/compressImage";
 import { updateUserProfile } from "@/api/user";
 import { toast } from "./ui/toast";
 import Link from "next/link";
+import { Switch } from "./ui/switch";
 
 interface User {
     name: string;
@@ -17,6 +18,7 @@ interface User {
     link?: string;
     profileImg?: string;
     coverImg?: string;
+    visibility: string;
 }
 
 export function EditProfileForm({ user, from }: { user: User; from: string }) {
@@ -34,6 +36,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
     const [profileImgPreview, setProfileImgPreview] = useState<string | null>(user.profileImg || null);
     const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
     const [coverImgPreview, setCoverImgPreview] = useState<string | null>(user.coverImg || null);
+    const [visibility, setVisibility] = useState<string>(user.visibility)
 
     const profileInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +80,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
             formData.append("email", email);
             formData.append("bio", bio);
             formData.append("link", link);
+            formData.append("visibility", visibility)
             if (currPassword && newPassword) {
                 formData.append("currPassword", currPassword);
                 formData.append("newPassword", newPassword);
@@ -122,8 +126,8 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         className="mb-4 flex items-center gap-1.5 rounded-md bg-foreground/10 px-3 py-1.5 text-sm font-medium text-foreground/70 hover:bg-foreground/10 hover:text-foreground transition-colors"
                     >
                         {"Skip"}
-                </button>
-            </Link>)}
+                    </button>
+                </Link>)}
             <h3 className="text-lg font-semibold text-foreground">
                 {from === "/profile" ? `Hi ${user.name.split(" ")[0]}, edit your profile` : `Hii ${user.name.split(" ")[0]}, let's configure your profile`}
             </h3>
@@ -209,7 +213,6 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
                 </div>)}
-
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Bio</label>
                     <textarea
@@ -237,26 +240,33 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         Change password
                     </h2>
 
-                <div>
-                    <label className="block text-sm font-medium text-foreground mb-1.5">Current password</label>
-                    <input
-                        type="password"
-                        value={currPassword}
-                        onChange={(e) => setCurrPassword(e.target.value)}
-                        className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
-                    />
-                </div>
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-1.5">Current password</label>
+                        <input
+                            type="password"
+                            value={currPassword}
+                            onChange={(e) => setCurrPassword(e.target.value)}
+                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                        />
+                    </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-foreground mb-1.5">New password</label>
-                    <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-1.5">New password</label>
+                        <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                        />
+                    </div>
+                </div>)}
+                <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm">Private Profile</span>
+                    <Switch
+                        checked={visibility === 'PRIVATE'}
+                        onCheckedChange={(checked) => setVisibility(checked ? 'PRIVATE' : 'PUBLIC')}
                     />
                 </div>
-            </div>)}
             <button
                 type="submit"
                 disabled={submitting}
