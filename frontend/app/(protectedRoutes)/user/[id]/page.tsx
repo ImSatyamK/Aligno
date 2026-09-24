@@ -62,7 +62,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
                         @{user.username}
                     </p>
                 </div>
-                {user.visibility === 'PUBLIC' || user._id === currentUser?.data?._id ? (
+                {user.visibility === 'PUBLIC' || user._id === currentUser?.data?._id || currentUser?.data?.following.includes(id) ? (
                     <>
                         {/* Bio */}
                         {user.bio && (
