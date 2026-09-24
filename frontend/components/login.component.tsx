@@ -5,16 +5,16 @@ import { useState } from "react";
 import { signIn } from "../api/auth";
 import { toast } from "./ui/toast";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 const FIELDS = [
     { key: "username", label: "Username", type: "text", placeholder: "johndoe" },
-    { key: "password", label: "Password", type: "password", placeholder: "••••••••" },
 ];
 
 export function LoginComponent() {
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
-
+    const [showPassword, setShowPassword] = useState(false);
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -69,6 +69,33 @@ export function LoginComponent() {
                         />
                     </div>
                 ))}
+                <div className="flex flex-col gap-1 col-span-2">
+                    <label className="text-sm font-medium text-foreground">
+                        Password
+                    </label>
+
+                    <div className="relative">
+                        <input
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password"
+                            required
+                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                        />
+
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
+                    </div>
+                </div>
 
                 <button
                     type="submit"

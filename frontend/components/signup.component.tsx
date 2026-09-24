@@ -5,18 +5,19 @@ import { signUp } from "../api/auth";
 import { toast } from "./ui/toast";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 const FIELDS = [
     { key: "name", label: "Name", type: "text", placeholder: "John Doe", span: 1 },
     { key: "username", label: "Username", type: "text", placeholder: "johndoe", span: 1 },
-    { key: "email", label: "Email", type: "email", placeholder: "john@example.com", span: 2 },
-    { key: "password", label: "Password", type: "password", placeholder: "••••••••", span: 2 },
+    { key: "email", label: "Email", type: "email", placeholder: "john@example.com", span: 2 }
 ];
 
 export function SignupComponent() {
     const router = useRouter();
 
     const [submitting, setSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -75,7 +76,36 @@ export function SignupComponent() {
                                 className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                             />
                         </div>
+
                     ))}
+
+                    <div className="flex flex-col gap-1 col-span-2">
+                        <label className="text-sm font-medium text-foreground">
+                            Password
+                        </label>
+
+                        <div className="relative">
+                            <input
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                required
+                                className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="h-5 w-5" />
+                                ) : (
+                                    <Eye className="h-5 w-5" />
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <button

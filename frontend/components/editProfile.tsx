@@ -9,6 +9,7 @@ import { updateUserProfile } from "@/api/user";
 import { toast } from "./ui/toast";
 import Link from "next/link";
 import { Switch } from "./ui/switch";
+import { Eye, EyeOff } from "lucide-react";
 
 interface User {
     name: string;
@@ -42,6 +43,8 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
     const coverInputRef = useRef<HTMLInputElement>(null);
 
     const [submitting, setSubmitting] = useState(false);
+    const [showCurrPassword, setShowCurrPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
 
     function handleProfileImgChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -240,33 +243,65 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         Change password
                     </h2>
 
-                    <div>
+                    <div className="flex flex-col gap-1 col-span-2">
                         <label className="block text-sm font-medium text-foreground mb-1.5">Current password</label>
-                        <input
-                            type="password"
-                            value={currPassword}
-                            onChange={(e) => setCurrPassword(e.target.value)}
-                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
-                        />
+
+                        <div className="relative">
+                            <input
+                                type={showCurrPassword ? "text" : "password"}
+                                value={currPassword}
+                                onChange={(e) => setCurrPassword(e.target.value)}
+                                className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowCurrPassword(!showCurrPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                {showCurrPassword ? (
+                                    <EyeOff className="h-5 w-5" />
+                                ) : (
+                                    <Eye className="h-5 w-5" />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1 col-span-2">
                         <label className="block text-sm font-medium text-foreground mb-1.5">New password</label>
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
-                        />
+
+                        <div className="relative">
+                            <input
+                                type={showNewPassword ? "text" : "password"}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                {showNewPassword ? (
+                                    <EyeOff className="h-5 w-5" />
+                                ) : (
+                                    <Eye className="h-5 w-5" />
+                                )}
+                            </button>
+                        </div>
                     </div>
+
+
                 </div>)}
-                <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm">Private Profile</span>
-                    <Switch
-                        checked={visibility === 'PRIVATE'}
-                        onCheckedChange={(checked) => setVisibility(checked ? 'PRIVATE' : 'PUBLIC')}
-                    />
-                </div>
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-sm">Private Profile</span>
+                <Switch
+                    checked={visibility === 'PRIVATE'}
+                    onCheckedChange={(checked) => setVisibility(checked ? 'PRIVATE' : 'PUBLIC')}
+                />
+            </div>
             <button
                 type="submit"
                 disabled={submitting}
