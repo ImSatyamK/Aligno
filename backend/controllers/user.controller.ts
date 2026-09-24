@@ -25,7 +25,14 @@ export async function getUserProfileById(req: Request, res: Response) {
             return res.status(200).json(user)
         }
         if (user.visibility === 'PRIVATE' && !currentUser.following.includes(user._id)) {
-            return res.status(403).json({ error: 'This profile is private' })
+            const privateUser = {
+                name: user.name,
+                username: user.username,
+                profileImg: user.profileImg,
+                coverImg: user.coverImg,
+                visibility: user.visibility
+            }
+            return res.status(200).json({ user: privateUser })
         }
         res.status(200).json(user)
     } catch (error) {
@@ -54,7 +61,14 @@ export async function getUserProfile(req: Request, res: Response) {
             return res.status(200).json(user)
         }
         if (user.visibility === 'PRIVATE' && !currentUser.following.includes(user._id)) {
-            return res.status(403).json({ error: 'This profile is private' })
+            const privateUser = {
+                name: user.name,
+                username: user.username,
+                profileImg: user.profileImg,
+                coverImg: user.coverImg,
+                visibility: user.visibility
+            }
+            return res.status(200).json({ user: privateUser })
         }
         res.status(200).json(user)
     } catch (error) {
