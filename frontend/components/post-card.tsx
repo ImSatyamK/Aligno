@@ -61,13 +61,15 @@ function PostMenu({
                 style={menuStyle}
                 className="z-50 w-44 rounded-xl border border-foreground/10 bg-background shadow-lg overflow-hidden"
             >
-                <button
-                    onClick={onReport}
-                    className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-foreground/5 transition-colors"
-                >
-                    <Flag className="h-4 w-4 text-muted-foreground" />
-                    Report
-                </button>
+                {!isOwnPost && (
+                    <button
+                        onClick={onReport}
+                        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-foreground/5 transition-colors"
+                    >
+                        <Flag className="h-4 w-4 text-muted-foreground" />
+                        Report
+                    </button>
+                )}
 
                 {isOwnPost && (
                     <>
@@ -193,25 +195,26 @@ export function PostCard({
 
     return (
         <article className="border-b border-foreground/10 px-4 py-4 overflow-hidden">
-            <div className="flex gap-3">
-                <Image
-                    src={post.user?.profileImg || "/default_profile.webp"}
-                    alt={post.user?.username || "User"}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 shrink-0 rounded-full object-cover"
-                />
+            <div className="flex flex-col gap-3">
 
-                <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-sm min-w-0">
-                            <span className="font-semibold text-foreground truncate">
-                                @{post.user?.username || "unknown"}
-                            </span>
-                            <span className="text-muted-foreground">·</span>
-                            <span className="text-muted-foreground shrink-0">{timeAgo(post.createdAt)}</span>
-                        </div>
-
+                        <a href={`/user/${post.user._id}`}
+                            className="flex items-center gap-3">
+                            <Image
+                                src={post.user?.profileImg || "/default_profile.webp"}
+                                alt={post.user?.username || "User"}
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 shrink-0 rounded-full object-cover"
+                            />
+                            <div className="flex items-center gap-1.5 text-sm min-w-0">
+                                <span className="font-semibold text-foreground truncate">
+                                    @{post.user?.username || "unknown"}
+                                </span>
+                                <span className="text-muted-foreground">·</span>
+                                <span className="text-muted-foreground shrink-0">{timeAgo(post.createdAt)}</span>
+                            </div>
+                        </a>
                         <div className="shrink-0">
                             <button
                                 ref={menuButtonRef}
@@ -236,6 +239,7 @@ export function PostCard({
                         </div>
                     </div>
 
+                <div className="flex-1 min-w-0">
                     <p className="mt-1 text-[15px] text-foreground whitespace-pre-wrap break-words">
                         {post.text}
                     </p>
@@ -275,19 +279,21 @@ export function PostCard({
                         <div className="mt-3 border-t border-foreground/10 pt-3 space-y-3">
                             {comments.map((comment) => (
                                 <div key={comment._id} className="flex gap-2 min-w-0">
-                                    <Image
-                                        src={comment.user?.profileImg || "/default_profile.webp"}
-                                        alt={comment.user?.username || "User"}
-                                        width={28}
-                                        height={28}
-                                        className="h-7 w-7 shrink-0 rounded-full object-cover"
-                                    />
-                                    <div className="text-sm min-w-0 [overflow-wrap:anywhere] break-all">
-                                        <span className="font-semibold text-foreground">
-                                            @{comment.user?.username || "unknown"}
-                                        </span>{" "}
-                                        <span className="text-foreground">{comment.text}</span>
-                                    </div>
+                                    <a href={`/user/${comment.user?._id}`} className="flex items-center gap-2 min-w-0">
+                                        <Image
+                                            src={comment.user?.profileImg || "/default_profile.webp"}
+                                            alt={comment.user?.username || "User"}
+                                            width={28}
+                                            height={28}
+                                            className="h-7 w-7 shrink-0 rounded-full object-cover"
+                                        />
+                                        <div className="text-sm min-w-0 [overflow-wrap:anywhere] break-all">
+                                            <span className="font-semibold text-foreground">
+                                                @{comment.user?.username || "unknown"}
+                                            </span>{" "}
+                                            <span className="text-foreground">{comment.text}</span>
+                                        </div>
+                                    </a>
                                 </div>
                             ))}
 

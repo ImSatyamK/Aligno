@@ -2,6 +2,7 @@ import { getNotifications } from "@/api/notification";
 import Image from "next/image";
 import { Heart, MessageCircle, UserPlus, Bell } from "lucide-react";
 import { timeAgo } from "@/lib/timeAgo";
+import Link from "next/link";
 
 interface NotificationUser {
     _id: string;
@@ -56,6 +57,7 @@ export default async function NotificationsPage() {
                     }`}
                 >
                     <div className="relative shrink-0">
+
                         <Image
                             src={n.from?.profileImg || "/default_profile.webp"}
                             alt={n.from?.username || "User"}
@@ -69,10 +71,12 @@ export default async function NotificationsPage() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        <p className="text-[15px] text-foreground break-words [overflow-wrap:anywhere]">
-                            <span className="font-semibold">@{n.from?.username || "unknown"}</span>{" "}
-                            {n.message}
-                        </p>
+                        <Link href={`user/${n.from?._id}`} className="block">
+                            <p className="text-[15px] text-foreground break-words [overflow-wrap:anywhere]">
+                                <span className="font-semibold">@{n.from?.username || "unknown"}</span>{" "}
+                                {n.message}
+                            </p>
+                        </Link>
                         <span className="text-sm text-muted-foreground">{timeAgo(n.createdAt)}</span>
                     </div>
 

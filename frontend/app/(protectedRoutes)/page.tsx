@@ -1,4 +1,3 @@
-// app/(protectedRoutes)/page.tsx
 import { getCurrentUser } from "@/api/auth";
 import { getAllPosts } from "@/api/post";
 import { PostCard } from "@/components/post-card";
@@ -23,13 +22,13 @@ export default async function HomePage() {
     return (
         <div className="max-w-xl mx-auto">
             {posts.map((post: any) => (
-                <PostCard
-                    key={post._id}
-                    post={post}
-                    currentUserId={currentUser?._id ?? null}
-                    currentUsername={currentUser?.username}
-                    currentUserImg={currentUser?.profileImg}
-                />
+                    <PostCard
+                        key={post._id}
+                        post={post}
+                        currentUserId={currentUser?._id ?? null}
+                        currentUsername={currentUser?.username}
+                        currentUserImg={currentUser?.profileImg}
+                    />
             ))}
         </div>
     );

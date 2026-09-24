@@ -85,7 +85,7 @@ export default async function ProfilePage() {
                 {/* Website */}
                 {user.link && (
                     <a
-                        href={'https://www.youtube.com'}
+                        href={user.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-2 flex w-fit max-w-full items-center gap-1.5 text-sm text-[#C08A2E] hover:underline"
@@ -93,7 +93,7 @@ export default async function ProfilePage() {
                         <LinkIcon className="h-3.5 w-3.5 shrink-0" />
 
                         <span className="truncate">
-                            {'youtube'}
+                            {user.link}
                         </span>
                     </a>
                 )}
