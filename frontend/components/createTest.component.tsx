@@ -2,10 +2,10 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createTest } from "@/api/test";
 import { toast } from "./ui/toast";
 import { Plus, Trash2, Upload, Copy, Check as CheckIcon } from "lucide-react";
-import Link from "next/link";
 
 interface QuestionDraft {
     question: string;
@@ -55,14 +55,12 @@ export function CreateTestForm() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [mode, setMode] = useState<"guided" | "json">("guided");
+    const [visibility, setVisibility] = useState<"PUBLIC" | "PRIVATE">("PRIVATE");
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [instructions, setInstructions] = useState("")
-    const [duration, setDuration] = useState(30);
-    const [correctMarks, setCorrectMarks] = useState(1);
-    const [negativeMarks, setNegativeMarks] = useState(0);
-    const [visibility, setVisibility] = useState<'PUBLIC' | 'PRIVATE'>('PRIVATE')
+    const [instructions, setInstructions] = useState("");
+
     const [questions, setQuestions] = useState<QuestionDraft[]>([emptyQuestion()]);
     const [jsonText, setJsonText] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -132,11 +130,8 @@ export function CreateTestForm() {
         setTimeout(() => setPromptCopied(false), 2000);
     };
 
-    const validate = (): string | null => {
-        if (!title.trim()) return "Give the test a title.";
-        if (duration <= 0) return "Duration must be greater than 0.";
+    const validateQuestions = (): string | null => {
         if (questions.length === 0) return "Add at least one question.";
-
         for (const [i, q] of questions.entries()) {
             if (!q.question.trim()) return `Question ${i + 1} is missing text.`;
             if (q.options.length < 2) return `Question ${i + 1} needs at least 2 options.`;
@@ -148,12 +143,38 @@ export function CreateTestForm() {
         return null;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const validationError = validate();
-        if (validationError) {
-            toast.add({ title: "Fix the form", description: validationError, type: "error" });
+        const formData = new FormData(e.currentTarget);
+        const durationMinutes = Number(formData.get("duration"));
+        const correctMarks = Number(formData.get("correctMarks"));
+        const negativeMarks = Number(formData.get("negativeMarks"));
+
+        if (!title.trim()) {
+            toast.add({ title: "Fix the form", description: "Give the test a title.", type: "error" });
+            return;
+        }
+        if (durationMinutes <= 0) {
+            toast.add({ title: "Fix the form", description: "Duration must be greater than 0.", type: "error" });
+            return;
+        }
+        if (correctMarks <= 0) {
+            toast.add({ title: "Fix the form", description: "Correct marks must be greater than 0.", type: "error" });
+            return;
+        }
+        if (negativeMarks < 0) {
+            toast.add({
+                title: "Fix the form",
+                description: "Enter negative marks as a positive number — we'll apply the sign.",
+                type: "error",
+            });
+            return;
+        }
+
+        const questionsError = validateQuestions();
+        if (questionsError) {
+            toast.add({ title: "Fix the form", description: questionsError, type: "error" });
             return;
         }
 
@@ -161,12 +182,12 @@ export function CreateTestForm() {
         const result = await createTest({
             title: title.trim(),
             description: description.trim() || undefined,
-            instructions,
-            duration,
+            instructions: instructions.trim() || undefined,
+            duration: durationMinutes * 60,
             questions,
             correctMarks,
             negativeMarks,
-            visibility
+            visibility,
         });
 
         if (result.success) {
@@ -184,38 +205,40 @@ export function CreateTestForm() {
 
     return (
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">Create a test</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Set up questions, options, and scoring.</p>
                 </div>
-                <Link href={'/test'}>
-                    <button className="mb-4 inline-flex items-center justify-center rounded-md bg-[#C08A2E] text-white hover:bg-[#A16D1A] focus:outline-none focus:ring-2 focus:ring-[#C08A2E] focus:ring-offset-2 px-4 py-2 text-sm font-medium transition">
-                        ← Back
-                    </button>
+                <Link
+                    href="/test"
+                    className="shrink-0 rounded-md bg-[#C08A2E] px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition"
+                >
+                    ← Back
                 </Link>
             </div>
 
             <div className="space-y-4">
-                <div className="flex gap-100">
-                    <label className="block text-sm font-medium text-foreground mb-1.5">VISIBILITY</label>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Visibility</label>
                     <div className="flex border border-input rounded-md w-fit overflow-hidden">
-
                         <button
                             type="button"
-                            onClick={() => setVisibility('PUBLIC')}
-                            className={`px-4 py-1.5 text-sm font-medium transition-colors ${visibility === "PUBLIC" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                                }`}
+                            onClick={() => setVisibility("PUBLIC")}
+                            className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                                visibility === "PUBLIC" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                            }`}
                         >
-                            PUBLIC
+                            Public
                         </button>
                         <button
                             type="button"
-                            onClick={() => setVisibility('PRIVATE')}
-                            className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${visibility === "PRIVATE" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                                }`}
+                            onClick={() => setVisibility("PRIVATE")}
+                            className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${
+                                visibility === "PRIVATE" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                            }`}
                         >
-                            PRIVATE
+                            Private
                         </button>
                     </div>
                 </div>
@@ -242,6 +265,7 @@ export function CreateTestForm() {
                         className="w-full resize-none rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                     />
                 </div>
+
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">
                         Instructions <span className="text-muted-foreground font-normal">(optional)</span>
@@ -259,49 +283,55 @@ export function CreateTestForm() {
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1.5">Duration (min)</label>
                         <input
+                            name="duration"
                             type="number"
                             min={1}
-                            value={duration}
-                            onChange={(e) => setDuration(Number(e.target.value))}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            required
                             className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1.5">Correct marks</label>
                         <input
+                            name="correctMarks"
                             type="number"
-                            value={correctMarks}
-                            onChange={(e) => setCorrectMarks(Number(e.target.value))}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            defaultValue={1}
+                            required
                             className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1.5">Negative marks</label>
                         <input
+                            name="negativeMarks"
                             type="number"
-                            value={negativeMarks}
-                            onChange={(e) => setNegativeMarks(Number(e.target.value))}
+                            onWheel={(e) => e.currentTarget.blur()}
+                            defaultValue={0}
+                            required
                             className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Mode switch */}
             <div className="flex border border-input rounded-md w-fit overflow-hidden">
                 <button
                     type="button"
                     onClick={() => setMode("guided")}
-                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${mode === "guided" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                        }`}
+                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                        mode === "guided" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                    }`}
                 >
                     Guided
                 </button>
                 <button
                     type="button"
                     onClick={() => setMode("json")}
-                    className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${mode === "json" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
-                        }`}
+                    className={`px-4 py-1.5 text-sm font-medium border-l border-input transition-colors ${
+                        mode === "json" ? "bg-[#C08A2E] text-white" : "text-foreground/70 hover:bg-foreground/5"
+                    }`}
                 >
                     JSON
                 </button>
