@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Home, Bell, Pencil, Plus } from "lucide-react";
-import { ThemeToggle } from "./theme-toggle";
 
 const NAV_ITEMS = [
     { href: "/", label: "Home", icon: Home },
@@ -54,11 +53,7 @@ export function Sidebar({
                     );
                 })}
 
-                <div className="mt-auto flex flex-col gap-3">
-                    <div className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-foreground/70">
-                        <span>Theme</span>
-                        <ThemeToggle />
-                    </div>
+                <div className="mt-auto flex flex-col">
 
                     <div className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-colors">
                         <Link href="/profile" onClick={onClose} className="flex items-center gap-3">

@@ -111,7 +111,7 @@ export function PostCard({
     const router = useRouter();
     const isOwnPost = currentUserId != null && post.user?._id === currentUserId;
 
-    const [liked, setLiked] = useState(currentUserId ? post.likes.includes(currentUserId) : false);
+    const [liked, setLiked] = useState(currentUserId && post.likes.includes(currentUserId));
     const [likesCount, setLikesCount] = useState(post.likes.length);
 
     const [showComments, setShowComments] = useState(false);
@@ -198,7 +198,7 @@ export function PostCard({
             <div className="flex flex-col gap-3">
 
                     <div className="flex items-center justify-between">
-                        <a href={`/user/${post.user._id}`}
+                        <a href={currentUserId===post.user._id?`/profile`:`/user/${post.user._id}`}
                             className="flex items-center gap-3">
                             <Image
                                 src={post.user?.profileImg || "/default_profile.webp"}
@@ -279,7 +279,7 @@ export function PostCard({
                         <div className="mt-3 border-t border-foreground/10 pt-3 space-y-3">
                             {comments.map((comment) => (
                                 <div key={comment._id} className="flex gap-2 min-w-0">
-                                    <a href={`/user/${comment.user?._id}`} className="flex items-center gap-2 min-w-0">
+                                    <a href={currentUserId===comment.user?._id?`/profile`:`/user/${comment.user?._id}`} className="flex items-center gap-2 min-w-0">
                                         <Image
                                             src={comment.user?.profileImg || "/default_profile.webp"}
                                             alt={comment.user?.username || "User"}
