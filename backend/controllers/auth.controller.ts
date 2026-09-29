@@ -37,9 +37,14 @@ export async function signup(req: Request, res: Response): Promise<void> {
         }
 
         const name     = body.name.trim().replace(/\s+/g, ' ')
-        const username = body.username.trim().replace(/\s/g, '')
+        const username = body.username.trim().toLocaleLowerCase().replace(/\s/g, '')
         const email    = body.email.trim().toLowerCase().replace(/\s/g, '')
-        const password = body.password
+        const password = body.password.trim().replace(/\s/g, '')
+
+        if (password !== body.password) {
+            res.status(400).json({error: 'Password cannot contain blank spaces'})
+            return
+        }
 
         if (!name || !username || !email || !password) {
             res.status(400).json({ error: 'Please provide all required fields' })
