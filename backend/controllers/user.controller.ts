@@ -228,12 +228,12 @@ export async function updateUser(req: Request, res: Response) {
 
         let profileImg = currentUser.profileImg
         let coverImg = currentUser.coverImg
-        if (removeProfileImg && currentUser.profileImg && !profileImgFile) {
+        if (removeProfileImg === 'true' && currentUser.profileImg && !profileImgFile) {
             const publicId = getCloudinaryPublicId(currentUser.profileImg, 'profile_images')
             await cloudinary.uploader.destroy(publicId)
             profileImg = ''
         }
-        if (removeCoverImg && currentUser.coverImg && !coverImgFile) {
+        if (removeCoverImg === 'true' && currentUser.coverImg && !coverImgFile) {
             const publicId = getCloudinaryPublicId(currentUser.coverImg, 'cover_images')
             await cloudinary.uploader.destroy(publicId)
             coverImg = ''

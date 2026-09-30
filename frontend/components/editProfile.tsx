@@ -9,7 +9,7 @@ import { updateUserProfile } from "@/api/user";
 import { toast } from "./ui/toast";
 import Link from "next/link";
 import { Switch } from "./ui/switch";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ImageMinus, ImagePlus } from "lucide-react";
 
 interface User {
     name: string;
@@ -38,13 +38,17 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
     const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
     const [coverImgPreview, setCoverImgPreview] = useState<string | null>(user.coverImg || null);
     const [visibility, setVisibility] = useState<string>(user.visibility)
+    const [removeProfileImg, setRemoveProfileImg] = useState<boolean>(false)
+    const [removeCoverImg, setRemoveCoverImg] = useState<boolean>(false)
 
-    const profileInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
+    const profileInputRef = useRef<HTMLInputElement>(null);
 
     const [submitting, setSubmitting] = useState(false);
     const [showCurrPassword, setShowCurrPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const [coverImgOption, setCoverImgOption] = useState(false);
+    const [profileImgOption, setProfileImgOption] = useState(false);
 
     function handleProfileImgChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -52,6 +56,8 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
         if (profileImgPreview) URL.revokeObjectURL(profileImgPreview);
         setProfileImgFile(file);
         setProfileImgPreview(URL.createObjectURL(file));
+        setRemoveProfileImg(false);
+        setProfileImgOption(false);
     }
 
     function handleCoverImgChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -60,6 +66,8 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
         if (coverImgPreview) URL.revokeObjectURL(coverImgPreview);
         setCoverImgFile(file);
         setCoverImgPreview(URL.createObjectURL(file));
+        setRemoveCoverImg(false);
+        setCoverImgOption(false);
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -84,6 +92,8 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
             formData.append("bio", bio);
             formData.append("link", link);
             formData.append("visibility", visibility)
+            formData.append("removeProfileImg", removeProfileImg.toString());
+            formData.append("removeCoverImg", removeCoverImg.toString());
             if (currPassword && newPassword) {
                 formData.append("currPassword", currPassword);
                 formData.append("newPassword", newPassword);
@@ -108,7 +118,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
             } else {
                 toast.add({
                     title: "Error",
-                    description: typeof result.error === "string" ? result.error : "Failed to update profile",
+                    description: result.error.error,
                     type: "error",
                 });
             }
@@ -137,7 +147,7 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
             <div className="relative">
                 <div
                     className="h-32 w-full rounded-md bg-foreground/5 overflow-hidden cursor-pointer group"
-                    onClick={() => coverInputRef.current?.click()}
+                    onClick={() => setCoverImgOption(!coverImgOption)}
                 >
                     {coverImgPreview && (
                         <Image
@@ -153,17 +163,48 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         <Camera className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-                <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverImgChange}
-                    className="hidden"
-                />
+                {coverImgOption && (
+                    <div className="fixed inset-0 z-50 bg-black/50">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background p-6 rounded-md shadow-lg w-80 flex flex-col items-center gap-4">
+                            <label className="flex items-center gap-1.5 text-sm font-medium text-[#C08A2E] cursor-pointer hover:opacity-80 transition-opacity">
+                                <ImagePlus className="h-4 w-4" />
+                                Add image
+                                <input
+                                    ref={coverInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleCoverImgChange}
+                                    className="hidden"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setCoverImgPreview(null);
+                                    setCoverImgFile(null);
+                                    setRemoveCoverImg(true);
+                                    coverInputRef.current!.value = "";
+                                    setCoverImgOption(false);
+                                }}
+                                className="mt-3 text-sm font-medium text-[#C08A2E] hover:opacity-80 transition-opacity"
+                            >
+                                <ImageMinus className="h-4 w-4 inline-block mr-1" />
+                                Remove image
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCoverImgOption(false)}
+                                className="mt-3 text-sm font-medium text-muted-foreground hover:opacity-80 transition-opacity"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div
                     className="absolute -bottom-8 left-4 cursor-pointer group"
-                    onClick={() => profileInputRef.current?.click()}
+                    onClick={() => setProfileImgOption(!profileImgOption)}
                 >
                     <div className="h-20 w-20 rounded-full border-4 border-background overflow-hidden bg-foreground/10">
                         <Image
@@ -179,13 +220,44 @@ export function EditProfileForm({ user, from }: { user: User; from: string }) {
                         <Camera className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
-                <input
-                    ref={profileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileImgChange}
-                    className="hidden"
-                />
+                {profileImgOption && (
+                    <div className="fixed inset-0 z-50 bg-black/50">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background p-6 rounded-md shadow-lg w-80 flex flex-col items-center gap-4">
+                            <label className="flex items-center gap-1.5 text-sm font-medium text-[#C08A2E] cursor-pointer hover:opacity-80 transition-opacity">
+                                <ImagePlus className="h-4 w-4" />
+                                Add image
+                                <input
+                                    ref={profileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProfileImgChange}
+                                    className="hidden"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setProfileImgPreview(null);
+                                    setProfileImgFile(null);
+                                    setRemoveProfileImg(true);
+                                    profileInputRef.current!.value = "";
+                                    setProfileImgOption(false);
+                                }}
+                                className="mt-3 text-sm font-medium text-[#C08A2E] hover:opacity-80 transition-opacity"
+                            >
+                                <ImageMinus className="h-4 w-4 inline-block mr-1" />
+                                Remove image
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setProfileImgOption(false)}
+                                className="mt-3 text-sm font-medium text-muted-foreground hover:opacity-80 transition-opacity"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="pt-8 space-y-4">
