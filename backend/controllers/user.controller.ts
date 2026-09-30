@@ -140,6 +140,17 @@ export async function getSuggestedUsers(req: Request, res: Response) {
     }
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
+
+function isValidEmail(email: string): boolean {
+    return EMAIL_REGEX.test(email)
+}
+
+function isValidUsername(username: string): boolean {
+    return USERNAME_REGEX.test(username)
+}
+
 export async function updateUser(req: Request, res: Response) {
     try {
         if (!req.user) {
@@ -151,10 +162,46 @@ export async function updateUser(req: Request, res: Response) {
             return res.status(404).json('User not found')
         }
 
-        const { name, username, email, currPassword, newPassword, bio, link, visibility } = req.body
+        let {
+            name,
+            username,
+            email,
+            currPassword,
+            newPassword,
+            bio,
+            link,
+            visibility,
+            removeProfileImg,
+            removeCoverImg
+        } = req.body
+
+        name = name.trim().replace(/\s+/g, ' ')
+        username = username.trim().toLocaleLowerCase()
+        email = email.trim().toLowerCase()
+        if (!isValidEmail) {
+            return res.status(400).json({ error: 'Email is not valid' })
+        }
+        if (!isValidUsername || String(username).includes(' ')) {
+            return res.status(400).json({ error: 'Username is not valid' })
+        }
+        if (newPassword && String(newPassword).includes(' ')) {
+            res.status(400).json({ error: 'Password cannot contain blank spaces' })
+            return
+        }
+
+        if (!name || !username || !email || !visibility) {
+            return res.status(400).json({ error: 'Name, username, email and visibility are required fields' })
+        }
+
+        const existingUsername = await User.findOne({ username, _id: { $ne: currentUser._id } })
+        const existingEmail = await User.findOne({ email, _id: { $ne: currentUser._id } })
+        if (existingUsername || existingEmail) {
+            return res.status(400).json({ error: 'Username or email already exists' })
+        }
+
         const f = req.files as { profileImg?: Express.Multer.File[], coverImg?: Express.Multer.File[] }
-        let profileImg = f.profileImg?.[0]?.buffer
-        let coverImg = f.coverImg?.[0]?.buffer
+        let profileImgFile = f.profileImg?.[0]?.buffer
+        let coverImgFile = f.coverImg?.[0]?.buffer
 
         let hashedPassword: string | undefined
 
@@ -179,7 +226,20 @@ export async function updateUser(req: Request, res: Response) {
             hashedPassword = await bcryptjs.hash(newPassword, 10)
         }
 
-        if (profileImg) {
+        let profileImg = currentUser.profileImg
+        let coverImg = currentUser.coverImg
+        if (removeProfileImg && currentUser.profileImg && !profileImgFile) {
+            const publicId = getCloudinaryPublicId(currentUser.profileImg, 'profile_images')
+            await cloudinary.uploader.destroy(publicId)
+            profileImg = ''
+        }
+        if (removeCoverImg && currentUser.coverImg && !coverImgFile) {
+            const publicId = getCloudinaryPublicId(currentUser.coverImg, 'cover_images')
+            await cloudinary.uploader.destroy(publicId)
+            coverImg = ''
+        }
+
+        if (profileImgFile) {
             if (currentUser.profileImg) {
                 const publicId = getCloudinaryPublicId(currentUser.profileImg, 'profile_images')
                 await cloudinary.uploader.destroy(publicId)
@@ -188,12 +248,12 @@ export async function updateUser(req: Request, res: Response) {
                 cloudinary.uploader.upload_stream(
                     { folder: 'profile_images' },
                     (err, result) => err ? reject(err) : resolve(result)
-                ).end(profileImg)
+                ).end(profileImgFile)
             })
             profileImg = upload.secure_url
         }
 
-        if (coverImg) {
+        if (coverImgFile) {
             if (currentUser.coverImg) {
                 const publicId = getCloudinaryPublicId(currentUser.coverImg, 'cover_images')
                 await cloudinary.uploader.destroy(publicId)
@@ -202,28 +262,30 @@ export async function updateUser(req: Request, res: Response) {
                 cloudinary.uploader.upload_stream(
                     { folder: 'cover_images' },
                     (err, result) => err ? reject(err) : resolve(result)
-                ).end(coverImg)
+                ).end(coverImgFile)
             })
             coverImg = upload.secure_url
         }
 
-        await Post.updateMany(
-            {user: req.user._id},
-            {$set: {userVisibility: visibility}}
-        )
+        if (visibility !== currentUser.visibility) {
+            await Post.updateMany(
+                { user: req.user._id },
+                { $set: { userVisibility: visibility } }
+            )
+        }
 
         const updatedUser = await User.findByIdAndUpdate(
             currentUser._id,
             {
-                name: name || currentUser.name,
-                username: username || currentUser.username,
-                email: email || currentUser.email,
+                name: name,
+                username: username,
+                email: email,
                 password: hashedPassword || currentUser.password,
-                bio: bio || currentUser.bio,
-                link: link || currentUser.link,
-                profileImg: profileImg || currentUser.profileImg,
-                coverImg: coverImg || currentUser.coverImg,
-                visibility: visibility || currentUser.visibility
+                bio: bio,
+                link: link,
+                profileImg: profileImg,
+                coverImg: coverImg,
+                visibility: visibility
             },
             { returnDocument: 'after' }
         ).select('-password')

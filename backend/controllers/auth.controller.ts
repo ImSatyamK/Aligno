@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
 import bcryptjs from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 import User from '../models/user.model'
-import { genTokenAndSetCookie } from '../lib/utils/generateToken'
+import { genToken } from '../lib/utils/generateToken'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/
@@ -37,22 +38,12 @@ export async function signup(req: Request, res: Response): Promise<void> {
         }
 
         const name     = body.name.trim().replace(/\s+/g, ' ')
-        const username = body.username.trim().toLocaleLowerCase().replace(/\s/g, '')
-        const email    = body.email.trim().toLowerCase().replace(/\s/g, '')
-        const password = body.password.trim().replace(/\s/g, '')
-
-        if (password !== body.password) {
-            res.status(400).json({error: 'Password cannot contain blank spaces'})
-            return
-        }
+        const username = body.username.toLocaleLowerCase().trim()
+        const email    = body.email.toLowerCase().trim()
+        const password = body.password
 
         if (!name || !username || !email || !password) {
             res.status(400).json({ error: 'Please provide all required fields' })
-            return
-        }
-
-        if (!isValidEmail(email)) {
-            res.status(400).json({ error: 'Please provide a valid email address' })
             return
         }
 
@@ -63,8 +54,8 @@ export async function signup(req: Request, res: Response): Promise<void> {
             return
         }
 
-        if (password.length < 6) {
-            res.status(400).json({ error: 'Password must be at least 6 characters long' })
+        if (!isValidEmail(email)) {
+            res.status(400).json({ error: 'Please provide a valid email address' })
             return
         }
 
@@ -73,13 +64,23 @@ export async function signup(req: Request, res: Response): Promise<void> {
             User.findOne({ username }).lean(),
         ])
 
+        if (usernameExists) {
+            res.status(400).json({ error: 'Username already taken' })
+            return
+        }
+
         if (emailExists) {
             res.status(400).json({ error: 'Email already exists' })
             return
         }
 
-        if (usernameExists) {
-            res.status(400).json({ error: 'Username already taken' })
+        if (password.includes(' ')) {
+            res.status(400).json({error: 'Password cannot contain blank spaces'})
+            return
+        }
+
+        if (password.length < 6) {
+            res.status(400).json({ error: 'Password must be at least 6 characters long' })
             return
         }
 
@@ -96,7 +97,7 @@ export async function signup(req: Request, res: Response): Promise<void> {
 
         let token;
         try {
-            token = genTokenAndSetCookie(newUser._id, res)
+            token = genToken(newUser._id, res)
         } catch (tokenError) {
             console.error('Token generation failed after signup:', tokenError)
             res.status(500).json({ error: 'Account created but authentication failed. Please log in.' })
@@ -133,7 +134,7 @@ export async function login(req:Request, res: Response) {
             res.status(400).json({ error: 'Invalid input types' })
             return
         }
-        username = username.trim().replace(/\s/g, '')
+        username = username.trim()
 
         if (!username || !password) {
             return res.status(400).json({error: 'Please enter username and password!'})
@@ -149,7 +150,7 @@ export async function login(req:Request, res: Response) {
 
         let token;
         try {
-            token = genTokenAndSetCookie(user._id, res)
+            token = genToken(user._id, res)
         } catch (tokenError) {
             console.error('Token generation failed:', tokenError)
             res.status(500).json({ error: 'Authentication failed. Please try again.' })
@@ -173,16 +174,6 @@ export async function login(req:Request, res: Response) {
     } catch (error) {
         console.error('Login error:', error)
         res.status(500).json({ error: 'Internal server error' })
-    }
-}
-
-export async function logout(req:Request, res: Response) {
-    try{
-        res.cookie('jwt', '', {maxAge:0})
-        res.status(200).json('Logged out successfully')
-    } catch (error) {
-        console.log("Error logging out user", error)
-        res.status(500).json({error: "Internal server error"})
     }
 }
 
