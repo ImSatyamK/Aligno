@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Settings, Link as LinkIcon, Pencil } from "lucide-react";
 import { getUserPosts } from "@/api/post";
 import { PostCard } from "@/components/post-card";
+import { FollowSection } from "@/components/followSection";
 
 export default async function ProfilePage() {
     const result = await getCurrentUser();
@@ -99,25 +100,12 @@ export default async function ProfilePage() {
                 )}
 
                 {/* Followers */}
-                <div className="mt-4 flex gap-6 text-sm">
-                    <div>
-                        <span className="font-semibold text-foreground">
-                            {user.following?.length ?? 0}
-                        </span>{" "}
-                        <span className="text-muted-foreground">
-                            Following
-                        </span>
-                    </div>
-
-                    <div>
-                        <span className="font-semibold text-foreground">
-                            {user.followers?.length ?? 0}
-                        </span>{" "}
-                        <span className="text-muted-foreground">
-                            Followers
-                        </span>
-                    </div>
-                </div>
+                <FollowSection
+                    followers={user.followers}
+                    following={user.following}
+                    ownProfile={true}
+                    currentUserId={user._id}
+                />
 
                 {/* Posts */}
                 <div className="mt-6 border-t border-foreground/10 pb-8 pt-6">

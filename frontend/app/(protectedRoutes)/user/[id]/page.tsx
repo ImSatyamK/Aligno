@@ -13,7 +13,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
     const postsResult = await getUserPosts(result.data?._id ?? "");
     const posts = postsResult.success ? postsResult.data.posts : [];
     const currentUser = await getCurrentUser();
-    const isFollowing = currentUser.data.following.includes(id)
+    const isFollowing = currentUser?.data?.following.some((user: any) => user._id === id)
     if (!result.success) {
         return (
             <div className="px-4 py-10 text-center text-muted-foreground">
@@ -23,6 +23,9 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
     }
 
     const user = result.data.user || result.data;
+    
+    console.log('current user:', currentUser)
+    console.log('isFollowing from user page:', isFollowing)
 
     return (
         <div className="mx-auto w-full max-w-xl px-4 pt-24">
@@ -91,6 +94,8 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
                             following={user.following}
                             id={id}
                             isFollowing={isFollowing}
+                            ownProfile={false}
+                            currentUserId={currentUser?.data?._id ?? ''}
                         />
 
                         {/* Posts */}

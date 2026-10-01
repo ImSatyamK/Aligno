@@ -17,7 +17,7 @@ export async function getUserProfileById(req: Request, res: Response) {
         return res.status(404).json('User not found')
     }
     try {
-        const user = await User.findById(id).select('-password')
+        const user = await User.findById(id).select('-password').populate('followers', 'name username profileImg').populate('following', 'name username profileImg')
         if (!user) {
             return res.status(404).json({ error: `No user found of id: ${id}` })
         }
@@ -53,7 +53,7 @@ export async function getUserProfile(req: Request, res: Response) {
     }
 
     try {
-        const user = await User.findOne({ username }).select('-password')
+        const user = await User.findOne({ username }).select('-password').populate('followers', 'name username profileImg').populate('following', 'name username profileImg')
         if (!user) {
             return res.status(404).json({ error: `No user found of username: ${username}` })
         }
