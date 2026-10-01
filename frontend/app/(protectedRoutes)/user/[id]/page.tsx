@@ -23,9 +23,6 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
     }
 
     const user = result.data.user || result.data;
-    
-    console.log('current user:', currentUser)
-    console.log('isFollowing from user page:', isFollowing)
 
     return (
         <div className="mx-auto w-full max-w-xl px-4 pt-24">
@@ -65,7 +62,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
                         @{user.username}
                     </p>
                 </div>
-                {user.visibility === 'PUBLIC' || user._id === currentUser?.data?._id || currentUser?.data?.following.includes(id) ? (
+                {user.visibility === 'PUBLIC' || user._id === currentUser?.data?._id || isFollowing ? (
                     <>
                         {/* Bio */}
                         {user.bio && (
