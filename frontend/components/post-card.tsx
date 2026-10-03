@@ -277,6 +277,25 @@ export function PostCard({
 
                     {showComments && (
                         <div className="mt-3 border-t border-foreground/10 pt-3 space-y-3">
+
+                            {currentUserId && (
+                                <form onSubmit={handleAddComment} className="flex gap-2 pt-1">
+                                    <input
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        placeholder="Add a comment..."
+                                        className="flex-1 rounded-md border border-input bg-background text-foreground px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={submitting || !commentText.trim()}
+                                        className="rounded-md bg-[#C08A2E] px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 transition"
+                                    >
+                                        Post
+                                    </button>
+                                </form>
+                            )}
+                            
                             {comments.map((comment) => (
                                 <div key={comment._id} className="flex gap-2 min-w-0">
                                     <a href={currentUserId===comment.user?._id?`/profile`:`/user/${comment.user?._id}`} className="flex items-center gap-2 min-w-0">
@@ -296,24 +315,6 @@ export function PostCard({
                                     </a>
                                 </div>
                             ))}
-
-                            {currentUserId && (
-                                <form onSubmit={handleAddComment} className="flex gap-2 pt-1">
-                                    <input
-                                        value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        placeholder="Add a comment..."
-                                        className="flex-1 rounded-md border border-input bg-background text-foreground px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#C08A2E]"
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={submitting || !commentText.trim()}
-                                        className="rounded-md bg-[#C08A2E] px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 transition"
-                                    >
-                                        Post
-                                    </button>
-                                </form>
-                            )}
                         </div>
                     )}
                 </div>
